@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<title class="i18n">__MSG_title__</title>
+<link rel="stylesheet" href="style.css">
+<script src="lib/jquery-2.2.4.min.js"></script>
+<script src="lib/jquery-ui-1.12.1.custom.min.js"></script>
+<script src="main.js"></script>
+</head>
+<body>
+<div id="header">
+	<h1 class="i18n">__MSG_title__</h1>
+	<div id="header_right">
+		<span id="add_list" class="header_btn_main i18n">__MSG_addListButton__</span>
+		<span id="conf_open" class="header_btn_main i18n">__MSG_configButton__</span>
+		<span id="conf_ok" class="header_btn_conf i18n">__MSG_configOkButton__</span>
+		<span id="conf_cancel" class="header_btn_conf i18n">__MSG_configCancelButton__</span>
+	</div>
+</div>
+<div id="config">
+	<h2 class="i18n">__MSG_configCategoryView__</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_wordwrap"><span class="i18n">__MSG_configItemWordWrap__</span></label></li>
+	</ul>
+	<h2 class="i18n">__MSG_configCategoryColor__</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_oldtab"><span class="i18n">__MSG_configItemOldTabBefore__</span><select id="conf_oldtabterm">
+			<option value="1" class="i18n">__MSG_configItemOldTabTerm1__</option>
+			<option value="12" class="i18n">__MSG_configItemOldtabTerm12__</option>
+			<option value="24" class="i18n">__MSG_configItemOldtabTerm24__</option>
+			<option value="168" class="i18n">__MSG_configItemOldtabTerm168__</option>
+			<option value="720" class="i18n">__MSG_configItemOldtabTerm720__</option>
+		</select><span class="i18n">__MSG_configItemOldTabAfter__</span></label></li>
+		<li><label><input type="checkbox" id="conf_lasttab"><span class="i18n">__MSG_configItemLastTab__</span></label></li>
+		<li><label><input type="checkbox" id="conf_newtab"><span class="i18n">__MSG_configItemNewTab__</span></label></li>
+	</ul>
+	<h2 class="i18n">__MSG_configCategoryConfirm__</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_closetab"><span class="i18n">__MSG_configItemCloseTab__</span></label></li>
+		<li><label><input type="checkbox" id="conf_removelist"><span class="i18n">__MSG_configItemRemoveList__</span></label></li>
+	</ul>
+	<h2 class="i18n">__MSG_configCategoryReset__</h2>
+	<ul>
+		<li><button id="conf_reset" class="i18n">__MSG_configResetButton__</button></li>
+	</ul>
+</div>
+<div id="main"></div>
+</body>
+</html>

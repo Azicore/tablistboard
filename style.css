@@ -1,0 +1,160 @@
+* {
+	margin: 0px;
+	padding: 0px;
+	font-size: 14px;
+	line-height: 1.0;
+}
+body {
+	padding-bottom: 24px;
+}
+ul {
+	list-style-type: none;
+}
+#header {
+	border-bottom: 1px solid #333333;
+	background: #f0f0f0;
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
+	position: relative;
+}
+h1 {
+	padding-left: 24px;
+	line-height: 48px;
+	font-size: 20px;
+}
+#header_right {
+	position: absolute;
+	right: 16px;
+	top: 0px;
+	line-height: 48px;
+}
+#header_right span {
+	margin-right: 8px;
+	padding: 4px 16px;
+	border: 1px solid #666666;
+	border-radius: 16px;
+	background: #fefefe;
+	cursor: pointer;
+}
+#header_right .header_btn_conf {
+	display: none;
+}
+#main {
+	width: 100%;
+	padding: 0px 16px;
+	display: flex;
+	box-sizing: border-box;
+}
+.column_block {
+	flex-grow: 1;
+	width: 1%;
+}
+.column {
+	min-height: 2em;
+	margin: 0px 8px;
+}
+.tablist_block {
+	margin: 12px 0px 0px;
+	padding: 0px 0px 4px;
+	border: 2px solid #333333;
+	border-radius: 16px;
+	background: #ffffff;
+}
+.tablist_block.placeholder {
+	height: 80px;
+	border: 2px dashed #cccccc;
+}
+.tablist_title {
+	padding: 8px 16px;
+	background: #333333;
+	border-radius: 14px 14px 0px 0px;
+	color: #ffffff;
+	font-weight: bold;
+	text-align: center;
+}
+.tablist_title input {
+	width: 67%;
+	padding: 4px 8px;
+	border: 1px solid #999999;
+	border-radius: 4px;
+	text-align: center;
+}
+.tablist {
+	min-height: 2em;
+	margin: 8px 0px 0px;
+}
+.tabitem {
+	margin: 4px 8px;
+	padding: 4px 8px;
+	border: 1px solid #999999;
+	background: #fafafa;
+	border-radius: 4px;
+	line-height: 1.5;
+	cursor: pointer;
+}
+.tabitem.single_line {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.tabitem.placeholder {
+	height: 1.5em;
+	border: 2px dashed #cccccc;
+	background: #ffffff;
+}
+.tabitem.old_tab {
+	background: #eaeaea;
+}
+.tabitem.new_tab {
+	background: #ffffcc;
+}
+.tabitem.last_tab {
+	background: #ccffcc;
+}
+.favicon {
+	width: 1em;
+	height: 1em;
+	margin-right: 4px;
+	vertical-align: middle;
+}
+.add_tab_btn, .remove_list_btn {
+	color: #666666;
+	line-height: 1.5;
+	text-align: center;
+	text-decoration: underline;
+}
+.add_tab_text, .remove_list_text {
+	cursor: pointer;
+}
+.close_tab_btn {
+	float: right;
+	width: 12px;
+	height: 12px;
+	margin: 4px 0px 0px 4px;
+	background: url(data:image/gif;base64,R0lGODlhDAAMAIAAAP///8PDwyH5BAMKAAAALAAAAAAMAAwAAAIcRIBpGK3m4GGRnjYVrg+/tGWg441ZWZrMt7BfAQA7);
+}
+#config {
+	display: none;
+}
+#config h2 {
+	margin: 24px 24px 16px;
+	font-size: 18px;
+}
+#config li {
+	margin: 0px 24px;
+	line-height: 2;
+}
+#config input {
+	margin-right: 8px;
+}
+#config select {
+	margin-right: 8px;
+	padding: 0px 4px;
+	border: 1px solid #999999;
+	font-size: 14px;
+}
+#config button {
+	padding: 6px 12px;
+	border: 1px solid #999999;
+	background: #f0f0f0;
+	font-size: 14px;
+}
