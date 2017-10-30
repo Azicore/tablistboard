@@ -31,19 +31,16 @@ var start = function(toggle) {
 			if (toggle) switchTab(mainPageTabId, lastTabId);
 		} else {
 			lastTabId = tab[0].id;
-			// メインページがまだ起動していない場合
-			if (mainPageTabId == null) {
-				// 新規タブでメインページを開く
-				browser.tabs.create({
-					url: mainPage,
-				}).then(function(tab) {
+			// メインページのタブを再利用できる場合は再利用
+			(mainPageTabId == null
+				? Promise.reject()
+				: browser.tabs.update(mainPageTabId, { url: mainPage, active: true })
+			// 再利用できない場合（通常）は新規タブでメインページを開く
+			).catch(function() {
+				browser.tabs.create({ url: mainPage }).then(function(tab) {
 					mainPageTabId = tab.id;
 				});
-			// メインページがすでに起動している場合
-			} else {
-				// タブを再利用する
-				browser.tabs.update(mainPageTabId, { url: mainPage, active: true });
-			}
+			});
 		}
 	});
 };
