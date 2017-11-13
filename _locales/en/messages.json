@@ -29,73 +29,16 @@
 	"configTitle": {
 		"message": "Settings"
 	},
-	"addListButton": {
-		"message": "+ Add list"
-	},
-	"configButton": {
-		"message": "Settings"
-	},
-	"configCategoryView": {
-		"message": "View"
-	},
-	"configCategoryColor": {
-		"message": "Tab color"
-	},
-	"configCategoryConfirm": {
-		"message": "Confirmation"
-	},
-	"configCategoryReset": {
-		"message": "Reset"
-	},
-	"configItemWordWrap": {
-		"message": "Display all of tab name"
-	},
-	"configItemOldTabBefore": {
-		"message": "Change background color of tabs which haven't been accessed more than "
-	},
-	"configItemOldTabAfter": {
-		"message": "to dark gray"
-	},
-	"configItemOldTabTerm1": {
-		"message": "1 hour"
-	},
-	"configItemOldTabTerm12": {
-		"message": "12 hours"
-	},
-	"configItemOldTabTerm24": {
-		"message": "1 day"
-	},
-	"configItemOldTabTerm168": {
-		"message": "7 days"
-	},
-	"configItemOldTabTerm720": {
-		"message": "30 days"
-	},
-	"configItemLastTab": {
-		"message": "Change background color of a tab which is opened just before to green"
-	},
-	"configItemNewTab": {
-		"message": "Change background color of tabs which are newly opened to yellow"
-	},
-	"configItemCloseTab": {
-		"message": "Confirm when a tab is closing"
-	},
-	"configItemRemoveList": {
-		"message": "Confirm when a list is removing"
-	},
-	"configResetButton": {
-		"message": "Reset..."
-	},
 	"configResetConfirm": {
 		"message": "All information about tab lists will be deleted.\nOpened tabs won't be closed."
 	},
 	"configResetDone": {
 		"message": "Reset is successfully done."
 	},
-	"configOkButton": {
-		"message": "Save"
+	"sidebarErrorMain": {
+		"message": "A tab list which contains the current tab will be displayed here."
 	},
-	"configCancelButton": {
-		"message": "Cancel"
+	"sidebarErrorNoinfo": {
+		"message": "Tab list is not available. Please open the Tab List Board first, then try again."
 	}
 }

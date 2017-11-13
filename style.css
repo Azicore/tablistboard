@@ -78,6 +78,23 @@ h1 {
 	border-radius: 4px;
 	text-align: center;
 }
+#sidebar .tablist_block {
+	margin: 0px;
+	border: 0px;
+}
+#sidebar .tablist_title {
+	background: #ffffff;
+	border-radius: 0px;
+	color: #000000;
+}
+#sidebar .remove_list_text {
+	display: none;
+}
+#sidebar_msg {
+	margin: 24px 8px;
+	line-height: 1.5;
+	text-align: center;
+}
 .tablist {
 	min-height: 2em;
 	margin: 8px 0px 0px;
@@ -110,6 +127,9 @@ h1 {
 .tabitem.last_tab {
 	background: #ccffcc;
 }
+.tabitem.current_tab {
+	background: #ccffcc;
+}
 .favicon {
 	width: 1em;
 	height: 1em;
@@ -131,6 +151,7 @@ h1 {
 	height: 12px;
 	margin: 4px 0px 0px 4px;
 	background: url(data:image/gif;base64,R0lGODlhDAAMAIAAAP///8PDwyH5BAMKAAAALAAAAAAMAAwAAAIcRIBpGK3m4GGRnjYVrg+/tGWg441ZWZrMt7BfAQA7);
+	position: relative;
 }
 #config {
 	display: none;
@@ -157,4 +178,31 @@ h1 {
 	border: 1px solid #999999;
 	background: #f0f0f0;
 	font-size: 14px;
+}
+#info {
+	margin: 20px 24px 0px;
+	border: 2px solid #ff9900;
+	background: #fff0cc;
+	border-radius: 16px;
+	position: relative;
+	opacity: 1;
+	transition: opacity 500ms 0s ease;
+	display: none;
+}
+#info p {
+	margin: 8px 32px 8px 16px;
+	line-height: 1.5;
+}
+#info_close {
+	width: 12px;
+	height: 12px;
+	right: 12px;
+	top: 12px;
+	background: url(data:image/gif;base64,R0lGODlhDAAMAIAAAP////+ZACH5BAMKAAAALAAAAAAMAAwAAAIcRIBpGK3m4GGRnjYVrg+/tGWg441ZWZrMt7BfAQA7);
+	position: absolute;
+	cursor: pointer;
+	display: none;
+}
+#info.info_closing {
+	opacity: 0;
 }

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<title>タブリストボード</title>
+<link rel="stylesheet" href="style.css">
+<script src="lib/jquery-2.2.4.min.js"></script>
+<script src="lib/jquery-ui-1.12.1.custom.min.js"></script>
+<script src="main.js"></script>
+</head>
+<body>
+<div id="header">
+	<h1>タブリストボード</h1>
+	<div id="header_right">
+		<span id="add_list" class="header_btn_main">+ リスト追加</span>
+		<span id="conf_open" class="header_btn_main">設定</span>
+		<span id="conf_ok" class="header_btn_conf">設定を保存</span>
+		<span id="conf_cancel" class="header_btn_conf">キャンセル</span>
+	</div>
+</div>
+<div id="info" data-info-ver="1.1.0">
+	<p><b>更新情報（2017/11/13）：</b>サイドバーで表示中のタブと同じリストのタブの切り替えが簡単にできるようになりました。</p>
+	<div id="info_close" title="閉じる"></div>
+</div>
+<div id="config">
+	<h2>表示</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_wordwrap">タブ名は折り返して全て表示する。</label></li>
+	</ul>
+	<h2>タブの色</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_oldtab"><select id="conf_oldtabterm">
+			<option value="1">1時間</option>
+			<option value="12">12時間</option>
+			<option value="24">1日間</option>
+			<option value="168">7日間</option>
+			<option value="720">30日間</option>
+		</select>以上アクセスしていないタブの背景色を濃い灰色にする。</label></li>
+		<li><label><input type="checkbox" id="conf_lasttab">最後に開いていたタブの背景色を緑色にする。</label></li>
+		<li><label><input type="checkbox" id="conf_newtab">新しく開いたタブの背景色を黄色にする。</label></li>
+	</ul>
+	<h2>確認ダイアログ</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_closetab">タブを閉じるときに確認する。</label></li>
+		<li><label><input type="checkbox" id="conf_removelist">リストを削除するときに確認する。</label></li>
+	</ul>
+	<h2>初期化</h2>
+	<ul>
+		<li><button id="conf_reset">初期化…</button></li>
+	</ul>
+	<h2>ヘルプ</h2>
+	<ul>
+		<li><a href="https://azisava.sakura.ne.jp/tablistboard/" target="_blank">サポートページ</a>をご覧下さい。</li>
+	</ul>
+</div>
+<div id="main"></div>
+</body>
+</html>

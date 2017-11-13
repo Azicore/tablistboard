@@ -29,73 +29,16 @@
 	"configTitle": {
 		"message": "タブリストボードの設定"
 	},
-	"addListButton": {
-		"message": "+ リスト追加"
-	},
-	"configButton": {
-		"message": "設定"
-	},
-	"configCategoryView": {
-		"message": "表示"
-	},
-	"configCategoryColor": {
-		"message": "タブの色"
-	},
-	"configCategoryConfirm": {
-		"message": "確認ダイアログ"
-	},
-	"configCategoryReset": {
-		"message": "初期化"
-	},
-	"configItemWordWrap": {
-		"message": "タブ名は折り返して全て表示する。"
-	},
-	"configItemOldTabBefore": {
-		"message": ""
-	},
-	"configItemOldTabAfter": {
-		"message": "以上アクセスしていないタブの背景色を濃い灰色にする。"
-	},
-	"configItemOldTabTerm1": {
-		"message": "1時間"
-	},
-	"configItemOldTabTerm12": {
-		"message": "12時間"
-	},
-	"configItemOldTabTerm24": {
-		"message": "1日間"
-	},
-	"configItemOldTabTerm168": {
-		"message": "7日間"
-	},
-	"configItemOldTabTerm720": {
-		"message": "30日間"
-	},
-	"configItemLastTab": {
-		"message": "最後に開いていたタブの背景色を緑色にする。"
-	},
-	"configItemNewTab": {
-		"message": "新しく開いたタブの背景色を黄色にする。"
-	},
-	"configItemCloseTab": {
-		"message": "タブを閉じるときに確認する。"
-	},
-	"configItemRemoveList": {
-		"message": "リストを削除するときに確認する。"
-	},
-	"configResetButton": {
-		"message": "初期化…"
-	},
 	"configResetConfirm": {
 		"message": "タブリストの情報を全て削除します。\n現在開いてるタブが閉じられることはありません。"
 	},
 	"configResetDone": {
 		"message": "初期化が完了しました。"
 	},
-	"configOkButton": {
-		"message": "設定を保存"
+	"sidebarErrorMain": {
+		"message": "表示中のタブと同じリストのタブの一覧がここに表示されます。"
 	},
-	"configCancelButton": {
-		"message": "キャンセル"
+	"sidebarErrorNoinfo": {
+		"message": "タブリストの情報がありません。タブリストボードのアイコンをクリックして、一度タブ一覧ページを開いて下さい。"
 	}
 }
