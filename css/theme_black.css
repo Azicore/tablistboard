@@ -1,0 +1,55 @@
+
+/* 全体 */
+body {
+	background: #333333;
+}
+
+/* ヘッダ部 */
+
+
+/* タブリスト */
+.tablist_block {
+	border: 2px solid #ffffff;
+	background: #333333;
+}
+.tabitem, .listitem {
+	background: #666666;
+	color: #ffffff;
+}
+.tabitem.old_tab {
+	background: #666666;
+	color: #999999;
+}
+.tabitem.new_tab {
+	background: #999900;
+}
+.tabitem.last_tab {
+	background: #339933;
+}
+.tabitem.current_tab {
+	background: #339933;
+}
+.add_tab_btn, .remove_list_btn {
+	color: #999999;
+}
+
+/* サイドバー */
+#sidebar .tablist_title {
+	background: #333333;
+	color: #ffffff;
+}
+#sidebar_msg {
+	color: #ffffff;
+}
+#otherlist_block p {
+	color: #ffffff;
+}
+
+/* 設定画面 */
+#config {
+	color: #ffffff;
+}
+#config a {
+	color: #9999ff;
+}
+

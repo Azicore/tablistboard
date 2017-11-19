@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <title>Tab List Board</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/base.css">
 <script src="lib/jquery-2.2.4.min.js"></script>
 <script src="lib/jquery-ui-1.12.1.custom.min.js"></script>
 <script src="main.js"></script>
@@ -18,31 +18,47 @@
 		<span id="conf_cancel" class="header_btn_conf">Cancel</span>
 	</div>
 </div>
-<div id="info" data-info-ver="1.1.0">
+<div class="info" data-info-ver="1.1.0">
 	<p><b>Update information (2017/11/13) :</b> Tab List Board is now available in sidebar to switch tab in the same list more easily.</p>
-	<div id="info_close" title="Close"></div>
+	<div class="info_close" title="Close"></div>
+</div>
+<div class="info" data-info-ver="1.2.0">
+	<p><b>Update information (2017/11/19) :</b> Ctrl+F1 shortcut to open/close sidebar, changing lists in sidebar, multiple font size and color theme, and middle button click for closing tab are now available.</p>
+	<div class="info_close" title="Close"></div>
 </div>
 <div id="config">
 	<h2>View</h2>
 	<ul>
+		<li>Font size: <select id="conf_fontsize">
+			<option value="verylarge">Very large</option>
+			<option value="large">Large</option>
+			<option value="medium">Medium</option>
+			<option value="small">Small</option>
+			<option value="verysmall">Very small</option>
+		</select></li>
+		<li>Color theme: <select id="conf_theme">
+			<option value="default">Default</option>
+			<option value="black">Black</option>
+			<option value="silver">Silver</option>
+		</select></li>
 		<li><label><input type="checkbox" id="conf_wordwrap">Display all of tab name</label></li>
-	</ul>
-	<h2>Tab color</h2>
-	<ul>
-		<li><label><input type="checkbox" id="conf_oldtab">Change background color of tabs which haven't been accessed more than <select id="conf_oldtabterm">
+		<li><label><input type="checkbox" id="conf_oldtab">Change color of old tabs which haven't been accessed more than <select id="conf_oldtabterm">
 			<option value="1">1 hour</option>
 			<option value="12">12 hours</option>
 			<option value="24">1 day</option>
 			<option value="168">7 days</option>
 			<option value="720">30 days</option>
-		</select> to dark gray</label></li>
-		<li><label><input type="checkbox" id="conf_lasttab">Change background color of a tab which is opened just before to green</label></li>
-		<li><label><input type="checkbox" id="conf_newtab">Change background color of tabs which are newly opened to yellow</label></li>
+		</select></label></li>
 	</ul>
 	<h2>Confirmation</h2>
 	<ul>
 		<li><label><input type="checkbox" id="conf_closetab">Confirm when a tab is closing</label></li>
-		<li><label><input type="checkbox" id="conf_removelist">Confirm when a list is removing</label></li>
+		<li><label><input type="checkbox" id="conf_removelist">Confirm when a list is being removed</label></li>
+	</ul>
+	<h2>Other</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_otherlists">Show other tab lists in sidebar</label></li>
+		<li><label><input type="checkbox" id="conf_middleclick">Close a tab by middle button click</label></li>
 	</ul>
 	<h2>Reset</h2>
 	<ul>

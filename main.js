@@ -106,14 +106,32 @@ window.jQuery(function($) {
 		var config = bg.config;
 		var cls = ['tabitem'];
 		if (config.oldTab && tab.isOldTab) cls.push('old_tab');
-		if (config.newTab && tab.isNewTab) cls.push('new_tab');
-		if (config.lastTab && tab.isLastTab) cls.push('last_tab');
+		if (tab.isNewTab) cls.push('new_tab');
+		if (tab.isLastTab) cls.push('last_tab');
 		if (tab.isCurrTab) cls.push('current_tab');
 		if (!config.wordWrap) cls.push('single_line');
-		return $('<li>').addClass(cls.join(' ')).attr('data-tab-id', tab.id)
+		return $('<li>').addClass(cls.join(' ')).attr('data-tab-id', tab.id).attr('title', tab.url)
 			.append($('<div>').addClass('close_tab_btn'))
 			.append($('<img>').addClass('favicon').attr('src', tab.favIconUrl))
-			.append($('<span>').addClass('tabitem_text').html(tab.title));
+			.append($('<span>').addClass('tabitem_text').text(tab.title));
+	};
+	
+	// サイドバー内の他リストのHTMLを生成する
+	var createOtherListsElement = function(otherLists) {
+		// 依存変数： i18nTexts, bg.config
+		var $otherLists = $('<ul>');
+		var cls = 'listitem' + (!bg.config.wordWrap ? ' single_line' : '');
+		for (var i in otherLists) {
+			$otherLists.append($('<li>').addClass(cls).text(otherLists[i].title + ' (' + otherLists[i].num + ')').attr('data-tab-id', otherLists[i].latestTabId));
+		}
+		return $('<li>').attr('id', 'otherlist_block').append($('<p>').html(i18nTexts.SIDEBAR_OTHER_LISTS)).append($otherLists);
+	};
+	
+	// フォントサイズを設定する
+	$.fn.setFontSize = function() {
+		return $(this).removeClass(function(i, cls) {
+			return cls.split(/ +/).filter(function(s) { return /^fontsize_/.test(s); }).join(' ');
+		}).addClass('fontsize_' + bg.config.fontSize);
 	};
 	
 	
@@ -166,13 +184,14 @@ window.jQuery(function($) {
 				tabLists[i].sort(orderFunc);
 			}
 			// HTML生成
+			var $main = $('#main').setFontSize();
 			for (var i = 0; cols.length > i; i++) {
 				var lists = cols[i].lists;
 				for (var j = 0; lists.length > j; j++) {
 					var listId = lists[j].listId;
 					lists[j].tabs = tabLists[listId] || [];
 				}
-				$('#main').append(createColumnElement(cols[i]));
+				$main.append(createColumnElement(cols[i]));
 			}
 			updateTabInfo();
 			updateListInfo();
@@ -187,8 +206,10 @@ window.jQuery(function($) {
 			// 画面表示
 			var display = function(obj) {
 				var isError = typeof obj == 'string';
-				$('#sidebar').empty().toggle(!isError).append(isError ? '' : obj);
+				$('#sidebar').empty().toggle(!isError).append(isError ? '' : obj).setFontSize();
 				$('#sidebar_msg').toggle(isError).html(isError ? obj : '');
+				//$('#sidebar_msg').toggle(isError).html(isError ? obj + '<br><br>現在 ' + tabs.length + ' 枚のタブを開いています。' : '');
+				
 				if (typeof func == 'function') func();
 			};
 			// メインページを表示中の場合
@@ -212,13 +233,24 @@ window.jQuery(function($) {
 			}
 			// 対象リストのタブを集約
 			var tabList = [];
+			var otherLists = {};
 			var defaultOrder = 1e10;
 			var limitTime = Date.now() - bg.config.oldTabTerm * 36e5;
 			for (var i = 0; tabs.length > i; i++) {
 				if (tabs[i].id == mainPageTabId) continue;
-				if ((tabInfo[i] || {}).listId != targetListId) continue;
+				var listId = (tabInfo[i] || {}).listId;
+				// 他の各リストの最新のタブを集約
+				if (listId != targetListId) {
+					if (!otherLists[listId]) otherLists[listId] = { lastAccessed: 0, num: 0 };
+					otherLists[listId].num++;
+					if (tabs[i].lastAccessed > otherLists[listId].lastAccessed) {
+						otherLists[listId].lastAccessed = tabs[i].lastAccessed;
+						otherLists[listId].latestTabId = tabs[i].id;
+					}
+					continue;
+				}
 				var order = (tabInfo[i] || {}).order || defaultOrder;
-				tabs[i].listId    = targetListId;
+				tabs[i].listId    = listId;
 				tabs[i].order     = order;
 				tabs[i].isOldTab  = limitTime > tabs[i].lastAccessed;
 				tabs[i].isNewTab  = order == defaultOrder || order % 1 > 0;
@@ -228,12 +260,18 @@ window.jQuery(function($) {
 			// タブをソート
 			tabList.sort(orderFunc);
 			// HTML生成
+			var elements = [];
 			for (var i = 0; lists.length > i; i++) {
-				if (lists[i].listId == targetListId) {
+				var listId = lists[i].listId;
+				if (listId == targetListId) {
 					lists[i].tabs = tabList;
-					return display(createListElement(lists[i]));
+					elements.push(createListElement(lists[i]));
+				} else if (otherLists[listId]) {
+					otherLists[listId].title = lists[i].title;
 				}
 			}
+			if (bg.config.otherLists) elements.push(createOtherListsElement(otherLists));
+			return display(elements);
 		});
 	};
 	
@@ -278,6 +316,12 @@ window.jQuery(function($) {
 		});
 	
 	});
+	
+	// カラーテーマの設定
+	bg.config.theme != 'default' && $('head').append($('<link>').attr({
+		rel : 'stylesheet',
+		href: 'css/theme_' + bg.config.theme + '.css'
+	}));
 	
 	
 	// --------------------------------------------------------------------------------
@@ -330,8 +374,8 @@ window.jQuery(function($) {
 	
 	// タブ削除ボタン
 	$(document).on('click', '.close_tab_btn', function(e) {
-		if (!bg.config.closeTab || confirm(i18nTexts.CLOSE_TAB_CONFIRM)) {
-			var $tabitem = $(this).parent();
+		var $tabitem = $(this).parent();
+		if (!bg.config.closeTab || confirm(i18nTexts.CLOSE_TAB_CONFIRM.replace('%s', $tabitem.find('.tabitem_text').text()))) {
 			bg.switchTab(currentWindowId, +$tabitem.attr('data-tab-id'));
 			$tabitem.remove();
 			updateTabInfo();
@@ -340,8 +384,13 @@ window.jQuery(function($) {
 	});
 	
 	// タブ選択
-	$(document).on('click', '.tabitem', function() {
+	$(document).on('click', '.tabitem, .listitem', function(e) {
 		bg.switchTab(currentWindowId, bg.mainPageTabIds[currentWindowId], +$(this).attr('data-tab-id'));
+	}).on('mousedown', '.tabitem, .listitem', function(e) {
+		if (bg.config.middleClick && e.which == 2) { // 中クリックでタブ削除
+			$(this).find('.close_tab_btn').trigger('click');
+			e.preventDefault();
+		}
 	});
 	
 	// リスト名変更
@@ -368,13 +417,17 @@ window.jQuery(function($) {
 	(function() {
 		// 設定項目の要素
 		var $config = {
-			wordWrap  : $('#conf_wordwrap'),
-			oldTab    : $('#conf_oldtab'),
-			oldTabTerm: $('#conf_oldtabterm'),
-			lastTab   : $('#conf_lasttab'),
-			newTab    : $('#conf_newtab'),
-			closeTab  : $('#conf_closetab'),
-			removeList: $('#conf_removelist')
+			wordWrap   : $('#conf_wordwrap'),
+			theme      : $('#conf_theme'),
+			fontSize   : $('#conf_fontsize'),
+			oldTab     : $('#conf_oldtab'),
+			oldTabTerm : $('#conf_oldtabterm'),
+//			lastTab    : $('#conf_lasttab'),
+//			newTab     : $('#conf_newtab'),
+			closeTab   : $('#conf_closetab'),
+			removeList : $('#conf_removelist'),
+			otherLists : $('#conf_otherlists'),
+			middleClick: $('#conf_middleclick')
 		};
 		// 設定を読み込んで設定画面に反映
 		var loadConf = function() {
@@ -408,6 +461,9 @@ window.jQuery(function($) {
 			bg.config.update(config).then(function() {
 				toggleConf(false);
 				location.reload();
+				browser.sidebarAction.setPanel({
+					panel: bg.SIDEBAR_PAGE + '#' + Date.now()
+				});
 			});
 		});
 		// 初期化
@@ -421,20 +477,27 @@ window.jQuery(function($) {
 	// 更新情報を表示
 	browser.storage.local.get('update').then(function(o) {
 		var infoVer = (o.update || { infoVer: '0.0.0' }).infoVer;
-		var $info = $('#info');
-		var $infoClose = $('#info_close');
-		var newInfoVer = $info.attr('data-info-ver');
-		$info.toggle(newInfoVer > infoVer).on({
-			mouseenter: function() { $infoClose.show(); },
-			mouseleave: function() { $infoClose.hide(); }
-		});
-		$infoClose.on('click', function() {
-			browser.storage.local.set({
-				update: { infoVer: newInfoVer }
+		var $info = $('.info');
+		$info.each(function() {
+			var $this = $(this);
+			var $infoClose = $this.find('.info_close');
+			var newInfoVer = $this.attr('data-info-ver');
+			$this.toggle(newInfoVer > infoVer).on({
+				mouseenter: function() { $infoClose.show(); },
+				mouseleave: function() { $infoClose.hide(); }
 			});
-			$info.addClass('info_closing');
-			setTimeout(function() { $info.hide(); }, 600);
+			$infoClose.on('click', function() {
+				if (newInfoVer > infoVer) {
+					browser.storage.local.set({
+						update: { infoVer: newInfoVer }
+					});
+					infoVer = newInfoVer;
+				}
+				$this.addClass('info_closing');
+				setTimeout(function() { $this.hide(); }, 600);
+			});
 		});
+
 	});
 
 

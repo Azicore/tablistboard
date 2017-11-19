@@ -31,12 +31,24 @@ lang = /^ja/.test(lang) ? 'ja' : 'en';
 var switchTab = function(windowId, self, target) {
 	// 依存変数：mainPageTabIds
 	// targetに切り替える
-	if (target != null) browser.tabs.update(target, { active: true });
+	if (target != null) {
+		browser.tabs.update(target, { active: true });
+	}
 	// selfを閉じる
 	if (self != null) {
 		browser.tabs.remove(self);
-		// メインページを閉じた場合は変数をnullにセット
-		if (self == mainPageTabIds[windowId]) mainPageTabIds[windowId] = null;
+		// メインページを閉じた場合
+		if (self == mainPageTabIds[windowId]) {
+			mainPageTabIds[windowId] = null;
+			// 履歴と最近閉じたタブから削除する
+			browser.sessions.getRecentlyClosed({ maxResults: 1 }).then(function(sessionInfo) {
+				if (sessionInfo[0] && sessionInfo[0].tab) {
+					var tab = sessionInfo[0].tab;
+					browser.sessions.forgetClosedTab(tab.windowId, tab.sessionId);
+					browser.history.deleteUrl({ url: tab.url });
+				}
+			});
+		}
 	}
 };
 
@@ -102,7 +114,8 @@ var i18nTexts = {
 	CONFIG_RESET_CONFIRM: browser.i18n.getMessage('configResetConfirm'),
 	CONFIG_RESET_DONE   : browser.i18n.getMessage('configResetDone'),
 	SIDEBAR_ERROR_MAIN  : browser.i18n.getMessage('sidebarErrorMain'),
-	SIDEBAR_ERROR_NOINFO: browser.i18n.getMessage('sidebarErrorNoinfo')
+	SIDEBAR_ERROR_NOINFO: browser.i18n.getMessage('sidebarErrorNoinfo'),
+	SIDEBAR_OTHER_LISTS : browser.i18n.getMessage('sidebarOtherLists')
 };
 
 // 設定の読み込みと保存
@@ -110,18 +123,23 @@ var config = (function() {
 	var obj = {};
 	// storageから変数にコピー（初回のみ）
 	browser.storage.local.get('config').then(function(o) {
-		var config = o.config || {
+		var config = o.config || {};
+		var defaultConfig = {
 			wordWrap   : true,
+			fontSize   : 'medium',
+			theme      : 'default',
 			oldTab     : true,
 			oldTabTerm : 168,
-			lastTab    : true,
-			newTab     : true,
+//			lastTab    : true,
+//			newTab     : true,
 			closeTab   : true,
 			removeList : true,
-			infoVer    : '0.0.0'
+			otherLists : true,
+			middleClick: false
 		};
-		for (var i in config) {
-			obj[i] = config[i];
+		// 未定義の項目はデフォルト値を適用、未知の設定項目は無視
+		for (var i in defaultConfig) {
+			obj[i] = config[i] != null ? config[i] : defaultConfig[i];
 		}
 	});
 	// 与えられた設定をstorageと変数にコピー

@@ -21,7 +21,7 @@
 		"message": "Is it OK to remove \"%s\"?"
 	},
 	"closeTabConfirm": {
-		"message": "Is it OK to close this tab?"
+		"message": "Is it OK to close \"%s\"?"
 	},
 	"title": {
 		"message": "Tab List Board"
@@ -40,5 +40,8 @@
 	},
 	"sidebarErrorNoinfo": {
 		"message": "Tab list is not available. Please open the Tab List Board first, then try again."
+	},
+	"sidebarOtherLists": {
+		"message": "Other lists"
 	}
 }

@@ -1,0 +1,66 @@
+
+/* 全体 */
+body {
+	background: #fafafa;
+}
+
+/* ヘッダ部 */
+
+
+/* タブリスト */
+.tablist_block {
+	border: 1px solid #666666;
+	background: #fafafa;
+	border-radius: 4px;
+	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.tablist_block.placeholder {
+	background: transparent;
+	box-shadow: none;
+}
+.tablist_title {
+	background: linear-gradient(#ffffff, #e0e0e0);
+	border-bottom: 1px solid #666666;
+	color: #333333;
+}
+.tabitem, .listitem {
+	background: linear-gradient(#ffffff, #f0f0f0);
+}
+.tabitem.old_tab {
+	background: linear-gradient(#ffffff, #f0f0f0);
+	color: #999999;
+}
+.tabitem.new_tab {
+	background: linear-gradient(#ffffcc, #cccc66);
+}
+.tabitem.last_tab {
+	background: linear-gradient(#f0ffff, #80e080);
+}
+.tabitem.current_tab {
+	background: linear-gradient(#f0ffff, #80e080);
+}
+.add_tab_btn, .remove_list_btn {
+	color: #666666;
+}
+
+/* サイドバー */
+#sidebar .tablist_block {
+	background: transparent;
+	box-shadow: none;
+}
+#sidebar .tablist_title {
+	background: #fafafa;
+	border-bottom: 0px;
+}
+#sidebar_msg {
+}
+#otherlist_block p {
+}
+
+/* 設定画面 */
+#config {
+	color: #000000;
+}
+#config a {
+}
+

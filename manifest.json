@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "__MSG_extensionName__",
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"author": "Azicore",
 	"default_locale": "en",
 	"description": "__MSG_extensionDescription__",
@@ -19,12 +19,18 @@
 	"permissions": [
 		"tabs",
 		"sessions",
-		"storage"
+		"storage",
+		"history"
 	],
 	"commands": {
 		"start": {
 			"suggested_key": {
 				"default": "F1"
+			}
+		},
+		"_execute_sidebar_action": {
+			"suggested_key": {
+				"default": "Ctrl+F1"
 			}
 		}
 	},
@@ -34,7 +40,7 @@
 		]
 	},
 	"browser_action": {
-		"default_title": "__MSG_browserActionTitle__",
+		"default_title": "__MSG_browserActionTitle__ (F1)",
 		"default_icon": {
 			"16": "img/icon16.png",
 			"32": "img/icon32.png",

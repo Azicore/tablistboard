@@ -1,3 +1,5 @@
+
+/* 全体 */
 * {
 	margin: 0px;
 	padding: 0px;
@@ -6,11 +8,16 @@
 }
 body {
 	padding-bottom: 24px;
+	background: #ffffff;
+	overflow-x: hidden;
 }
 ul {
 	list-style-type: none;
 }
+
+/* ヘッダ部 */
 #header {
+	margin-bottom: 12px;
 	border-bottom: 1px solid #333333;
 	background: #f0f0f0;
 	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
@@ -31,18 +38,35 @@ h1 {
 	margin-right: 8px;
 	padding: 4px 16px;
 	border: 1px solid #666666;
-	border-radius: 16px;
+	border-radius: 16px / 50%;
 	background: #fefefe;
 	cursor: pointer;
 }
 #header_right .header_btn_conf {
 	display: none;
 }
+
+/* タブリスト */
 #main {
 	width: 100%;
 	padding: 0px 16px;
 	display: flex;
 	box-sizing: border-box;
+}
+.fontsize_verylarge * {
+	font-size: 18px;
+}
+.fontsize_large * {
+	font-size: 17px;
+}
+.fontsize_medium * {
+	font-size: 14px;
+}
+.fontsize_small * {
+	font-size: 13px;
+}
+.fontsize_verysmall * {
+	font-size: 11px;
 }
 .column_block {
 	flex-grow: 1;
@@ -53,11 +77,12 @@ h1 {
 	margin: 0px 8px;
 }
 .tablist_block {
-	margin: 12px 0px 0px;
+	margin: 0px 0px 12px;
 	padding: 0px 0px 4px;
 	border: 2px solid #333333;
 	border-radius: 16px;
 	background: #ffffff;
+	overflow: hidden;
 }
 .tablist_block.placeholder {
 	height: 80px;
@@ -66,7 +91,6 @@ h1 {
 .tablist_title {
 	padding: 8px 16px;
 	background: #333333;
-	border-radius: 14px 14px 0px 0px;
 	color: #ffffff;
 	font-weight: bold;
 	text-align: center;
@@ -78,37 +102,30 @@ h1 {
 	border-radius: 4px;
 	text-align: center;
 }
-#sidebar .tablist_block {
-	margin: 0px;
-	border: 0px;
-}
-#sidebar .tablist_title {
-	background: #ffffff;
-	border-radius: 0px;
-	color: #000000;
-}
-#sidebar .remove_list_text {
-	display: none;
-}
-#sidebar_msg {
-	margin: 24px 8px;
-	line-height: 1.5;
-	text-align: center;
-}
 .tablist {
 	min-height: 2em;
 	margin: 8px 0px 0px;
 }
-.tabitem {
+.tabitem, .listitem {
 	margin: 4px 8px;
 	padding: 4px 8px;
 	border: 1px solid #999999;
-	background: #fafafa;
 	border-radius: 4px;
+	background: #fafafa;
+	color: #000000;
 	line-height: 1.5;
 	cursor: pointer;
 }
-.tabitem.single_line {
+.fontsize_small .tabitem, .fontsize_verysmall .tabitem, .fontsize_small .listitem, .fontsize_verysmall .listitem {
+	padding: 2px 8px;
+}
+.fontsize_medium .tabitem, .fontsize_large .tabitem, .fontsize_medium .listitem, .fontsize_large .listitem {
+	padding: 4px 8px;
+}
+.fontsize_verylarge .tabitem, .fontsize_verylarge .listitem {
+	padding: 6px 8px;
+}
+.tabitem.single_line, .listitem.single_line {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
@@ -116,7 +133,7 @@ h1 {
 .tabitem.placeholder {
 	height: 1.5em;
 	border: 2px dashed #cccccc;
-	background: #ffffff;
+	background: transparent;
 }
 .tabitem.old_tab {
 	background: #eaeaea;
@@ -136,6 +153,9 @@ h1 {
 	margin-right: 4px;
 	vertical-align: middle;
 }
+.add_tab_btn {
+	margin-top: 4px;
+}
 .add_tab_btn, .remove_list_btn {
 	color: #666666;
 	line-height: 1.5;
@@ -153,6 +173,33 @@ h1 {
 	background: url(data:image/gif;base64,R0lGODlhDAAMAIAAAP///8PDwyH5BAMKAAAALAAAAAAMAAwAAAIcRIBpGK3m4GGRnjYVrg+/tGWg441ZWZrMt7BfAQA7);
 	position: relative;
 }
+
+/* サイドバー */
+#sidebar .tablist_block {
+	margin: 0px;
+	border: 0px;
+}
+#sidebar .tablist_title {
+	background: #ffffff;
+	border-radius: 0px;
+	color: #000000;
+}
+#sidebar .remove_list_text {
+	display: none;
+}
+#sidebar_msg {
+	margin: 24px 8px;
+	line-height: 1.5;
+	text-align: center;
+}
+#otherlist_block p {
+	margin: 16px 0px;
+	text-align: center;
+	font-weight: bold;
+	color: #000000;
+}
+
+/* 設定画面 */
 #config {
 	display: none;
 }
@@ -179,8 +226,10 @@ h1 {
 	background: #f0f0f0;
 	font-size: 14px;
 }
-#info {
-	margin: 20px 24px 0px;
+
+/* 情報バー */
+.info {
+	margin: 12px 24px;
 	border: 2px solid #ff9900;
 	background: #fff0cc;
 	border-radius: 16px;
@@ -189,11 +238,11 @@ h1 {
 	transition: opacity 500ms 0s ease;
 	display: none;
 }
-#info p {
+.info p {
 	margin: 8px 32px 8px 16px;
 	line-height: 1.5;
 }
-#info_close {
+.info_close {
 	width: 12px;
 	height: 12px;
 	right: 12px;
@@ -203,6 +252,6 @@ h1 {
 	cursor: pointer;
 	display: none;
 }
-#info.info_closing {
+.info.info_closing {
 	opacity: 0;
 }

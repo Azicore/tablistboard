@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <title>タブリストボード</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/base.css">
 <script src="lib/jquery-2.2.4.min.js"></script>
 <script src="lib/jquery-ui-1.12.1.custom.min.js"></script>
 <script src="main.js"></script>
@@ -18,31 +18,47 @@
 		<span id="conf_cancel" class="header_btn_conf">キャンセル</span>
 	</div>
 </div>
-<div id="info" data-info-ver="1.1.0">
+<div class="info" data-info-ver="1.1.0">
 	<p><b>更新情報（2017/11/13）：</b>サイドバーで表示中のタブと同じリストのタブの切り替えが簡単にできるようになりました。</p>
-	<div id="info_close" title="閉じる"></div>
+	<div class="info_close" title="閉じる"></div>
+</div>
+<div class="info" data-info-ver="1.2.0">
+	<p><b>更新情報（2017/11/19）：</b> Ctrl+F1でサイドバーの開閉ができるようになりました。サイドバーでリストの切り替えができるようになりました。文字サイズ・カラーテーマを変更できるようになりました。中クリックでタブを閉じるオプションをつけました。</p>
+	<div class="info_close" title="閉じる"></div>
 </div>
 <div id="config">
 	<h2>表示</h2>
 	<ul>
+		<li>文字のサイズ：<select id="conf_fontsize">
+			<option value="verylarge">最大</option>
+			<option value="large">大</option>
+			<option value="medium">中</option>
+			<option value="small">小</option>
+			<option value="verysmall">最小</option>
+		</select></li>
+		<li>カラーテーマ：<select id="conf_theme">
+			<option value="default">標準</option>
+			<option value="black">ブラック</option>
+			<option value="silver">シルバー</option>
+		</select></li>
 		<li><label><input type="checkbox" id="conf_wordwrap">タブ名は折り返して全て表示する。</label></li>
-	</ul>
-	<h2>タブの色</h2>
-	<ul>
 		<li><label><input type="checkbox" id="conf_oldtab"><select id="conf_oldtabterm">
 			<option value="1">1時間</option>
 			<option value="12">12時間</option>
 			<option value="24">1日間</option>
 			<option value="168">7日間</option>
 			<option value="720">30日間</option>
-		</select>以上アクセスしていないタブの背景色を濃い灰色にする。</label></li>
-		<li><label><input type="checkbox" id="conf_lasttab">最後に開いていたタブの背景色を緑色にする。</label></li>
-		<li><label><input type="checkbox" id="conf_newtab">新しく開いたタブの背景色を黄色にする。</label></li>
+		</select>以上アクセスしていない古いタブの色を変える。</label></li>
 	</ul>
 	<h2>確認ダイアログ</h2>
 	<ul>
 		<li><label><input type="checkbox" id="conf_closetab">タブを閉じるときに確認する。</label></li>
 		<li><label><input type="checkbox" id="conf_removelist">リストを削除するときに確認する。</label></li>
+	</ul>
+	<h2>その他の機能</h2>
+	<ul>
+		<li><label><input type="checkbox" id="conf_otherlists">サイドバーに他のリスト一覧を表示する。</label></li>
+		<li><label><input type="checkbox" id="conf_middleclick">タブを中クリックすることでタブを閉じる。</label></li>
 	</ul>
 	<h2>初期化</h2>
 	<ul>

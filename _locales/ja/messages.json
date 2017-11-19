@@ -21,7 +21,7 @@
 		"message": "「%s」を削除してよろしいですか？"
 	},
 	"closeTabConfirm": {
-		"message": "このタブを閉じてよろしいですか？"
+		"message": "「%s」を閉じてよろしいですか？"
 	},
 	"title": {
 		"message": "タブリストボード"
@@ -40,5 +40,8 @@
 	},
 	"sidebarErrorNoinfo": {
 		"message": "タブリストの情報がありません。タブリストボードのアイコンをクリックして、一度タブ一覧ページを開いて下さい。"
+	},
+	"sidebarOtherLists": {
+		"message": "他のリスト"
 	}
 }
