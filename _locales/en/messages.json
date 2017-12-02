@@ -18,7 +18,7 @@
 		"message": "Remove this list"
 	},
 	"removeListConfirm": {
-		"message": "Is it OK to remove \"%s\"?"
+		"message": "Is it OK to remove \"%s\"?<br>Tabs in the list will be closed."
 	},
 	"closeTabConfirm": {
 		"message": "Is it OK to close \"%s\"?"
@@ -30,7 +30,7 @@
 		"message": "Settings"
 	},
 	"configResetConfirm": {
-		"message": "All information about tab lists will be deleted.\nOpened tabs won't be closed."
+		"message": "Are you sure you want to delete all information about tab lists?<br>Opened tabs won't be closed."
 	},
 	"configResetDone": {
 		"message": "Reset is successfully done."
@@ -43,5 +43,14 @@
 	},
 	"sidebarOtherLists": {
 		"message": "Other lists"
+	},
+	"alertOk": {
+		"message": "OK"
+	},
+	"confirmOk": {
+		"message": "OK"
+	},
+	"confirmCancel": {
+		"message": "Cancel"
 	}
 }

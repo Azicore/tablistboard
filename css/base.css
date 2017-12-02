@@ -142,10 +142,10 @@ h1 {
 	background: #ffffcc;
 }
 .tabitem.last_tab {
-	background: #ccffcc;
+	background: #ccffbb;
 }
 .tabitem.current_tab {
-	background: #ccffcc;
+	background: #ccffbb;
 }
 .favicon {
 	width: 1em;
@@ -176,10 +176,11 @@ h1 {
 
 /* サイドバー */
 #sidebar .tablist_block {
-	margin: 0px;
+	margin: 0px 0px 8px;
 	border: 0px;
 }
 #sidebar .tablist_title {
+	padding-bottom: 2px;
 	background: #ffffff;
 	border-radius: 0px;
 	color: #000000;
@@ -192,11 +193,15 @@ h1 {
 	line-height: 1.5;
 	text-align: center;
 }
-#otherlist_block p {
-	margin: 16px 0px;
-	text-align: center;
-	font-weight: bold;
-	color: #000000;
+#otherlist_block ul {
+	margin-top: 8px;
+}
+.hide_other_lists .tablist_title {
+	text-decoration: underline;
+	cursor: pointer;
+}
+.hide_other_lists #otherlist_block {
+	display: none;
 }
 
 /* 設定画面 */
@@ -255,3 +260,35 @@ h1 {
 .info.info_closing {
 	opacity: 0;
 }
+
+/* ダイアログ */
+.dialog {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+}
+.dialog > div {
+	max-width: 480px;
+	margin: 0px auto 0px;
+	padding: 16px 16px 16px;
+	background: #fafafa;
+	border: 1px solid #999999;
+}
+.dialog p {
+	min-height: 32px;
+	padding-bottom: 32px;
+	line-height: 1.5;
+}
+.dialog > div > div {
+	text-align: center;
+}
+.dialog button {
+	width: 120px;
+	height: 32px;
+	margin: 4px 8px 0px;
+	text-align: center;
+}
+

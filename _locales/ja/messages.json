@@ -18,7 +18,7 @@
 		"message": "このリストを削除"
 	},
 	"removeListConfirm": {
-		"message": "「%s」を削除してよろしいですか？"
+		"message": "「%s」を削除してよろしいですか？<br>リスト内のタブは全て閉じられます。"
 	},
 	"closeTabConfirm": {
 		"message": "「%s」を閉じてよろしいですか？"
@@ -30,7 +30,7 @@
 		"message": "タブリストボードの設定"
 	},
 	"configResetConfirm": {
-		"message": "タブリストの情報を全て削除します。\n現在開いてるタブが閉じられることはありません。"
+		"message": "タブリストの情報を全て削除してよろしいですか？<br>現在開いてるタブが閉じられることはありません。"
 	},
 	"configResetDone": {
 		"message": "初期化が完了しました。"
@@ -43,5 +43,14 @@
 	},
 	"sidebarOtherLists": {
 		"message": "他のリスト"
+	},
+	"alertOk": {
+		"message": "OK"
+	},
+	"confirmOk": {
+		"message": "OK"
+	},
+	"confirmCancel": {
+		"message": "キャンセル"
 	}
 }

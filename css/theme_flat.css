@@ -1,0 +1,51 @@
+
+/* 全体 */
+
+
+/* ヘッダ部 */
+
+
+/* タブリスト */
+.tablist_block {
+	border: 1px solid #333333;
+	border-radius: 2px;
+	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.tablist_block.placeholder {
+	border-radius: 0px;
+	box-shadow: none;
+}
+.tablist {
+	margin: 0px;
+}
+.tabitem, .listitem {
+	margin: 0px;
+	border: 0px;
+	border-bottom: 1px solid #cccccc;
+	border-radius: 0px;
+}
+.tabitem.placeholder {
+	border: 0px;
+	background: #f0f0f0;
+	box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5) inset;
+}
+
+/* サイドバー */
+#sidebar {
+	margin-left: 1px;
+}
+#sidebar .tablist_block {
+	box-shadow: none;
+}
+#sidebar .tablist_title {
+	padding-bottom: 8px;
+	border-bottom: 1px solid #cccccc;
+	background: #333333;
+	color: #ffffff;
+}
+#otherlist_block ul {
+	margin-top: 0px;
+}
+
+/* 設定画面 */
+

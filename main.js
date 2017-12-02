@@ -28,14 +28,32 @@ window.jQuery(function($) {
 	// --------------------------------------------------------------------------------
 	// # 共通関数
 	
+	// HTMLエスケープ
+	var escapeHtml = function(str) {
+		var r = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' };
+		return str.replace(/[<>&"]/g, function(s) { return r[s]; });
+	};
+	
+	// タブバーのタブの並び順を更新する
+	var updateTabbarOrder = function() {
+		if (!bg.config.tabbarOrder) return;
+		var tabIds = [];
+		$('.tabitem').each(function() {
+			tabIds.push(+$(this).attr('data-tab-id'));
+		});
+		return tabIds.length > 0 && browser.tabs.get(tabIds[0]).then(function(tab) {
+			return browser.tabs.move(tabIds, { windowId: currentWindowId, index: tab.index });
+		});
+	};
+	
 	// 全てのリストの情報を更新して保存する
 	var updateListInfo = function() {
-		return bg.updateListInfo($, currentWindowId);
+		return bg.updateListInfo($, currentWindowId).then(updateTabbarOrder);
 	};
 	
 	// 全てのタブの情報を更新して保存する
 	var updateTabInfo = function() {
-		return bg.updateTabInfo($, currentWindowId);
+		return bg.updateTabInfo($, currentWindowId).then(updateTabbarOrder);
 	};
 	
 	// カラムのHTMLを生成する
@@ -121,10 +139,15 @@ window.jQuery(function($) {
 		// 依存変数： i18nTexts, bg.config
 		var $otherLists = $('<ul>');
 		var cls = 'listitem' + (!bg.config.wordWrap ? ' single_line' : '');
+		var otherListsArr = [];
 		for (var i in otherLists) {
-			$otherLists.append($('<li>').addClass(cls).text(otherLists[i].title + ' (' + otherLists[i].num + ')').attr('data-tab-id', otherLists[i].latestTabId));
+			otherListsArr.push(otherLists[i]);
 		}
-		return $('<li>').attr('id', 'otherlist_block').append($('<p>').html(i18nTexts.SIDEBAR_OTHER_LISTS)).append($otherLists);
+		otherListsArr.sort(function(a, b) { return a.title > b.title ? 1 : -1; });
+		for (var i = 0; otherListsArr.length > i; i++) {
+			$otherLists.append($('<li>').addClass(cls).text(otherListsArr[i].title + ' (' + otherListsArr[i].num + ')').attr('data-tab-id', otherListsArr[i].latestTabId));
+		}
+		return $('<li>').attr('id', 'otherlist_block').append($('<p>').addClass('tablist_title').html(i18nTexts.SIDEBAR_OTHER_LISTS)).append($otherLists);
 	};
 	
 	// フォントサイズを設定する
@@ -134,28 +157,65 @@ window.jQuery(function($) {
 		}).addClass('fontsize_' + bg.config.fontSize);
 	};
 	
+	// ダイアログ表示
+	var Dialog = {
+		_create: function(msg, isConfirm) {
+			var self = this;
+			return new Promise(function(resolve, reject) {
+				self.close = function(status) {
+					$(document).off('keydown', esc);
+					$modalMask.remove();
+					status ? resolve() : reject();
+				};
+				var ok     = function() { self.close(true); };
+				var cancel = function() { self.close(!isConfirm); };
+				var esc    = function(e) { if (e.which == 27) cancel(); }; // Escキーでキャンセル
+				var $buttons = $('<div>');
+				if (isConfirm) {
+					$buttons.append($('<button>').text(i18nTexts.CONFIRM_OK).on('click', ok));
+					$buttons.append($('<button>').text(i18nTexts.CONFIRM_CANCEL).on('click', cancel));
+				} else {
+					$buttons.append($('<button>').text(i18nTexts.ALERT_OK).on('click', ok));
+				}
+				var $dialogBody = $('<div>').append($('<p>').html(msg)).append($buttons).hide().on('click', false);
+				var $modalMask = $('<div>').addClass('dialog').append($dialogBody).on('click', cancel);
+				$('body').append($modalMask);
+				$dialogBody.slideDown(200).find('button').eq(0).focus();
+				$(document).on('keydown', esc);
+			});
+		},
+		alert: function(msg) {
+			return this._create(msg, false);
+		},
+		confirm: function(msg, force) {
+			return force === true ? Promise.resolve() : this._create(msg, true);
+		},
+		close: function() { }
+	};
+	
 	
 	// --------------------------------------------------------------------------------
 	// # メイン処理
 	
 	// メインページのタブ一覧生成
 	var generateMainBoard = function() {
-		bg.getTabListInfo(currentWindowId, function(tabs, tabInfo, lists) {
+		return bg.getTabListInfo(currentWindowId).then(function(o) {
+			var {tabs, tabInfo, tabStatus, lists} = o;
 			var lastTabId     = bg.lastTabIds[currentWindowId];
 			var mainPageTabId = bg.mainPageTabIds[currentWindowId];
 			var orderFunc = function(a, b) { return a.order > b.order ? 1 : -1; };
 			// ウィンドウに情報がない場合は新規リストを1つ作成
-			if (!lists || lists.length == 0) {
-				lists = [{ listId: Date.now(), column: 0, order: 1, title: i18nTexts.NEW_LIST_NAME }];
+			if (!lists) {
+				lists = {};
+				var newList = { listId: Date.now(), column: 0, order: 1, title: i18nTexts.NEW_LIST_NAME };
+				lists[newList.listId] = newList;
 			}
 			// カラムごとにリストを分類
 			var cols = [];
-			lists.isExistent = {};
-			for (var i = 0; lists.length > i; i++) {
-				var colId = lists[i].column;
+			for (var listId in lists) {
+				var colId = lists[listId].column;
 				if (!cols[colId]) cols[colId] = { colId: colId, lists: [] };
-				cols[colId].lists.push(lists[i]);
-				lists.isExistent[lists[i].listId] = true;
+				cols[colId].lists.push(lists[listId]);
 			}
 			// カラムごとにリストをソート
 			for (var i = 0; cols.length > i; i++) {
@@ -166,18 +226,20 @@ window.jQuery(function($) {
 			var defaultListId = cols[0].lists[0].listId;
 			var defaultOrder = 1e10;
 			var limitTime = Date.now() - bg.config.oldTabTerm * 36e5;
+			var procs = [];
 			for (var i = 0; tabs.length > i; i++) {
 				if (tabs[i].id == mainPageTabId) continue;
-				var listId = (tabInfo[i] || {}).listId || defaultListId;
-				var order  = (tabInfo[i] || {}).order  || defaultOrder;
-				if (!lists.isExistent[listId]) listId = defaultListId;
+				var listId = tabInfo[i] && tabInfo[i].listId || defaultListId;
+				var order = tabInfo[i] && tabInfo[i].order || defaultOrder;
+				if (!lists[listId]) listId = defaultListId;
 				tabs[i].listId    = listId;
 				tabs[i].order     = order;
 				tabs[i].isOldTab  = limitTime > tabs[i].lastAccessed;
-				tabs[i].isNewTab  = order == defaultOrder;
+				tabs[i].isNewTab  = !tabStatus[i].activated || !tabStatus[i].displayed;
 				tabs[i].isLastTab = tabs[i].id == lastTabId;
 				if (!tabLists[listId]) tabLists[listId] = [];
 				tabLists[listId].push(tabs[i]);
+				procs.push(bg.setTabStatus(tabs[i].id, 'displayed', true));
 			}
 			// リストごとにタブをソート
 			for (var i in tabLists) {
@@ -186,92 +248,89 @@ window.jQuery(function($) {
 			// HTML生成
 			var $main = $('#main').setFontSize();
 			for (var i = 0; cols.length > i; i++) {
-				var lists = cols[i].lists;
-				for (var j = 0; lists.length > j; j++) {
-					var listId = lists[j].listId;
-					lists[j].tabs = tabLists[listId] || [];
+				for (var j = 0; cols[i].lists.length > j; j++) {
+					cols[i].lists[j].tabs = tabLists[cols[i].lists[j].listId] || [];
 				}
 				$main.append(createColumnElement(cols[i]));
 			}
-			updateTabInfo();
-			updateListInfo();
+			return Promise.all([updateTabInfo(), updateListInfo(), Promise.all(procs)]);
 		});
 	};
 	
 	// サイドバーでのタブ一覧生成
-	var generateSidebar = function(currentTabId, func) {
-		bg.getTabListInfo(currentWindowId, function(tabs, tabInfo, lists) {
+	var generateSidebar = function(delay) {
+		return bg.getTabListInfo(currentWindowId).then(function(o) {
+			var {tabs, tabInfo, tabStatus, lists, currentTabId} = o;
 			var mainPageTabId = bg.mainPageTabIds[currentWindowId];
 			var orderFunc = function(a, b) { return a.order > b.order ? 1 : -1; };
-			// 画面表示
-			var display = function(obj) {
-				var isError = typeof obj == 'string';
-				$('#sidebar').empty().toggle(!isError).append(isError ? '' : obj).setFontSize();
-				$('#sidebar_msg').toggle(isError).html(isError ? obj : '');
-				//$('#sidebar_msg').toggle(isError).html(isError ? obj + '<br><br>現在 ' + tabs.length + ' 枚のタブを開いています。' : '');
-				
-				if (typeof func == 'function') func();
-			};
 			// メインページを表示中の場合
 			if (currentTabId != null && currentTabId == mainPageTabId) {
-				return display(i18nTexts.SIDEBAR_ERROR_MAIN);
+				return i18nTexts.SIDEBAR_ERROR_MAIN;
 			}
 			// ウィンドウに情報がない場合
-			if (!lists || lists.length == 0 || currentTabId == null) {
-				return display(i18nTexts.SIDEBAR_ERROR_NOINFO);
+			if (!lists || currentTabId == null) {
+				return i18nTexts.SIDEBAR_ERROR_NOINFO;
 			}
 			// 対象のリストを特定
 			var targetListId;
 			for (var i = 0; tabs.length > i; i++) {
 				if (tabs[i].id == currentTabId) {
-					targetListId = (tabInfo[i] || {}).listId;
+					targetListId = tabInfo[i] && tabInfo[i].listId;
 					break;
 				}
 			}
-			if (targetListId == null) {
-				return display(i18nTexts.SIDEBAR_ERROR_NOINFO);
+			if (!lists[targetListId]) {
+				return i18nTexts.SIDEBAR_ERROR_NOINFO;
 			}
-			// 対象リストのタブを集約
+			// タブの情報を集約
 			var tabList = [];
 			var otherLists = {};
 			var defaultOrder = 1e10;
 			var limitTime = Date.now() - bg.config.oldTabTerm * 36e5;
+			var procs = [];
 			for (var i = 0; tabs.length > i; i++) {
 				if (tabs[i].id == mainPageTabId) continue;
-				var listId = (tabInfo[i] || {}).listId;
-				// 他の各リストの最新のタブを集約
-				if (listId != targetListId) {
+				var listId = tabInfo[i] && tabInfo[i].listId;
+				// 対象リストのタブ
+				if (listId == targetListId) {
+					var order = tabInfo[i] && tabInfo[i].order || defaultOrder;
+					tabs[i].listId    = listId;
+					tabs[i].order     = order;
+					tabs[i].isOldTab  = limitTime > tabs[i].lastAccessed;
+					tabs[i].isNewTab  = !tabStatus[i].activated || !tabStatus[i].displayed;
+					tabs[i].isCurrTab = tabs[i].id == currentTabId;
+					tabList.push(tabs[i]);
+					procs.push(bg.setTabStatus(tabs[i].id, 'displayed', true));
+				// 他のリストのタブ
+				} else {
 					if (!otherLists[listId]) otherLists[listId] = { lastAccessed: 0, num: 0 };
 					otherLists[listId].num++;
 					if (tabs[i].lastAccessed > otherLists[listId].lastAccessed) {
 						otherLists[listId].lastAccessed = tabs[i].lastAccessed;
 						otherLists[listId].latestTabId = tabs[i].id;
 					}
-					continue;
 				}
-				var order = (tabInfo[i] || {}).order || defaultOrder;
-				tabs[i].listId    = listId;
-				tabs[i].order     = order;
-				tabs[i].isOldTab  = limitTime > tabs[i].lastAccessed;
-				tabs[i].isNewTab  = order == defaultOrder || order % 1 > 0;
-				tabs[i].isCurrTab = tabs[i].id == currentTabId;
-				tabList.push(tabs[i]);
 			}
 			// タブをソート
 			tabList.sort(orderFunc);
 			// HTML生成
-			var elements = [];
-			for (var i = 0; lists.length > i; i++) {
-				var listId = lists[i].listId;
-				if (listId == targetListId) {
-					lists[i].tabs = tabList;
-					elements.push(createListElement(lists[i]));
-				} else if (otherLists[listId]) {
-					otherLists[listId].title = lists[i].title;
-				}
+			lists[targetListId].tabs = tabList;
+			var elements = [createListElement(lists[targetListId])];
+			for (var listId in lists) {
+				if (otherLists[listId]) otherLists[listId].title = lists[listId].title;
 			}
-			if (bg.config.otherLists) elements.push(createOtherListsElement(otherLists));
-			return display(elements);
+			//if (bg.config.otherLists) elements.push(createOtherListsElement(otherLists));
+			elements.push(createOtherListsElement(otherLists));
+			return elements;
+		}).then(function(obj) {
+			// 画面表示
+			var isError = typeof obj == 'string';
+			$('#sidebar')
+				.empty().toggle(!isError).append(isError ? '' : obj)
+				.toggleClass('hide_other_lists', !bg.config.otherLists).setFontSize();
+			$('#sidebar_msg')
+				.toggle(isError).html(isError ? obj : '');
+			Dialog.close();
 		});
 	};
 	
@@ -282,37 +341,47 @@ window.jQuery(function($) {
 		// メインページの場合
 		if (!isSidebar) {
 			generateMainBoard();
+			bg.start.processing = false;
 			return;
 		}
 		
 		// サイドバーの場合
-		var getActiveTab = function() {
-			return bg.getActiveTab(currentWindowId);
-		};
-		getActiveTab().then(function(tabId) {
-			generateSidebar(tabId);
+		generateSidebar();
+		
+		// タブが作られたとき（backgroundでの処理の完了後に発動）
+		browser.runtime.onMessage.addListener(function(obj) {
+			if (obj.name != 'created') return;
+			var tab = obj.param;
+			if (tab.windowId != currentWindowId || bg.start.processing) return;
+			createTabElement(tab).insertAfter(tab.openerTabId ? '.current_tab' : '.tablist:last');
+			updateTabInfo().then(generateSidebar);
 		});
-		// タブが切り替わったとき
-		browser.tabs.onActivated.addListener(function(obj) {
-			// ※obj.tabIdはまれに不正確なため使用不可。
+		
+		// タブが切り替わったとき（backgroundでの処理の完了後に発動）
+		browser.runtime.onMessage.addListener(function(obj) {
+			if (obj.name != 'activated') return;
+			obj = obj.param;
 			if (obj.windowId != currentWindowId) return;
-			getActiveTab().then(function(tabId) {
-				generateSidebar(tabId, updateTabInfo);
-			});
+//			generateSidebar().then(updateTabInfo);
+			updateTabInfo().then(generateSidebar);
 		});
+		
 		// タブが更新されたとき
 		browser.tabs.onUpdated.addListener(function(tabId, obj, tab) {
 			if (!obj.url && !obj.title || tab.windowId != currentWindowId) return;
-			getActiveTab().then(function(tabId) {
-				setTimeout(function() { generateSidebar(tabId); }, 200);
-			});
+			bg.delay().then(generateSidebar);
 		});
+		
 		// タブが閉じられたとき
 		browser.tabs.onRemoved.addListener(function(tabId, obj) {
 			if (obj.windowId != currentWindowId) return;
-			getActiveTab().then(function(tabId) {
-				setTimeout(function() { generateSidebar(tabId); }, 200);
-			});
+			bg.delay().then(generateSidebar);
+		});
+		
+		// タブが切り離されたとき
+		browser.tabs.onDetached.addListener(function(tabId, obj) {
+			if (obj.oldWindowId != currentWindowId) return;
+			$('.current_tab').remove();
 		});
 	
 	});
@@ -333,21 +402,22 @@ window.jQuery(function($) {
 			browser.storage.local.remove(['config', 'update']); // ## For debug
 			return;
 		}
-		if (!confirm(i18nTexts.CONFIG_RESET_CONFIRM)) return;
-		bg.removeTabListInfo(currentWindowId, function() {
-			alert(i18nTexts.CONFIG_RESET_DONE);
-			bg.switchTab(currentWindowId, bg.mainPageTabIds[currentWindowId]);
-		});
+		Dialog.confirm(i18nTexts.CONFIG_RESET_CONFIRM).then(function() {
+			bg.removeTabListInfo(currentWindowId).then(function() {
+				return Dialog.alert(i18nTexts.CONFIG_RESET_DONE);
+			}).then(function() {
+				bg.switchTab(currentWindowId, bg.mainPageTabIds[currentWindowId]);
+			});
+		}, $.noop);
 	});
 	
 	// リスト追加ボタン
 	$('#add_list').on('click', function() {
-		var listId = Date.now();
 		var $columns = $('.column_block');
-		$columns.last().after(
+		$('#main').append(
 			createColumnElement({
 				colId: $columns.length,
-				lists: [{ listId: listId, title: i18nTexts.NEW_LIST_NAME, tabs: [] }]
+				lists: [{ listId: Date.now(), title: i18nTexts.NEW_LIST_NAME, tabs: [] }]
 			})
 		);
 		updateListInfo();
@@ -357,29 +427,41 @@ window.jQuery(function($) {
 	$(document).on('click', '.remove_list_text', function() {
 		var $tablistBlock = $(this).parent().parent();
 		var listTitle = $tablistBlock.find('.tablist_title').text();
-		if (!bg.config.removeList || confirm(i18nTexts.REMOVE_LIST_CONFIRM.replace('%s', listTitle))) {
+		Dialog.confirm(i18nTexts.REMOVE_LIST_CONFIRM.replace('%s', escapeHtml(listTitle)), !bg.config.removeList).then(function() {
+			$tablistBlock.find('.tabitem').each(function() {
+				bg.switchTab(currentWindowId, +$(this).attr('data-tab-id'));
+			});
 			$tablistBlock.remove();
 			updateListInfo();
-		}
+		}, $.noop);
 	});
 	
 	// タブ追加ボタン
 	$(document).on('click', '.add_tab_text', function() {
 		var $tablist = $(this).parent().parent().find('.tablist');
 		browser.tabs.create({ active: false }).then(function(tab) {
-			$tablist.append(createTabElement(tab));
-			updateTabInfo();
+			if (!isSidebar) {
+				tab.isNewTab = true;
+				$tablist.append(createTabElement(tab));
+				updateTabInfo();
+			} // サイドバーの場合はonCreatedがハンドリング
 		});
 	});
 	
 	// タブ削除ボタン
 	$(document).on('click', '.close_tab_btn', function(e) {
 		var $tabitem = $(this).parent();
-		if (!bg.config.closeTab || confirm(i18nTexts.CLOSE_TAB_CONFIRM.replace('%s', $tabitem.find('.tabitem_text').text()))) {
-			bg.switchTab(currentWindowId, +$tabitem.attr('data-tab-id'));
+		var tabTitle = $tabitem.find('.tabitem_text').text();
+		Dialog.confirm(i18nTexts.CLOSE_TAB_CONFIRM.replace('%s', escapeHtml(tabTitle)), !bg.config.closeTab).then(function() {
+			if (isSidebar && $tabitem.hasClass('current_tab')) {
+				// 表示中のタブを閉じた場合は、同じリストの1つ前のタブへ切り替え
+				bg.switchTab(currentWindowId, +$tabitem.attr('data-tab-id'), +$tabitem.prev().attr('data-tab-id'));
+			} else {
+				bg.switchTab(currentWindowId, +$tabitem.attr('data-tab-id'));
+			}
 			$tabitem.remove();
 			updateTabInfo();
-		}
+		}, $.noop);
 		e.stopPropagation();
 	});
 	
@@ -409,6 +491,22 @@ window.jQuery(function($) {
 		$input.focus();
 	});
 	
+	// サイドバーでの他のリスト一覧切り替え
+	$(document).on('click', '.hide_other_lists .tablist_title', function() {
+		$(this).parent().parent().children().toggle();
+	});
+	
+	// 右クリック抑止
+	$(document).on('contextmenu', function(e) {
+		e.preventDefault();
+	});
+	
+	// ハイパーリンクの動作
+	$(document).on('click', 'a', function(e) {
+		bg.openPageFromBoard(currentWindowId, $(this).attr('href'));
+		e.preventDefault();
+	});
+	
 	
 	// --------------------------------------------------------------------------------
 	// # 設定画面
@@ -427,7 +525,9 @@ window.jQuery(function($) {
 			closeTab   : $('#conf_closetab'),
 			removeList : $('#conf_removelist'),
 			otherLists : $('#conf_otherlists'),
-			middleClick: $('#conf_middleclick')
+			middleClick: $('#conf_middleclick'),
+			tabbarOrder: $('#conf_tabbarorder'),
+			removeTabs : $('#conf_removetabs')
 		};
 		// 設定を読み込んで設定画面に反映
 		var loadConf = function() {

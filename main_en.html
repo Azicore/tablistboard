@@ -18,12 +18,8 @@
 		<span id="conf_cancel" class="header_btn_conf">Cancel</span>
 	</div>
 </div>
-<div class="info" data-info-ver="1.1.0">
-	<p><b>Update information (2017/11/13) :</b> Tab List Board is now available in sidebar to switch tab in the same list more easily.</p>
-	<div class="info_close" title="Close"></div>
-</div>
-<div class="info" data-info-ver="1.2.0">
-	<p><b>Update information (2017/11/19) :</b> Ctrl+F1 shortcut to open/close sidebar, changing lists in sidebar, multiple font size and color theme, and middle button click for closing tab are now available.</p>
+<div class="info" data-info-ver="1.3.0">
+	<p><b>Update information (2017/12/03) :</b> Version 1.3.0 has been released. Thank you for updating. Please check update information on <a href="https://azisava.sakura.ne.jp/tablistboard/en.html">support page</a>.</p>
 	<div class="info_close" title="Close"></div>
 </div>
 <div id="config">
@@ -40,6 +36,7 @@
 			<option value="default">Default</option>
 			<option value="black">Black</option>
 			<option value="silver">Silver</option>
+			<option value="flat">Flat</option>
 		</select></li>
 		<li><label><input type="checkbox" id="conf_wordwrap">Display all of tab name</label></li>
 		<li><label><input type="checkbox" id="conf_oldtab">Change color of old tabs which haven't been accessed more than <select id="conf_oldtabterm">
@@ -57,8 +54,10 @@
 	</ul>
 	<h2>Other</h2>
 	<ul>
-		<li><label><input type="checkbox" id="conf_otherlists">Show other tab lists in sidebar</label></li>
+		<li><label><input type="checkbox" id="conf_otherlists">Always show other tab lists in sidebar</label></li>
 		<li><label><input type="checkbox" id="conf_middleclick">Close a tab by middle button click</label></li>
+		<li><label><input type="checkbox" id="conf_removetabs">Allow deleting a tab list even if it still has tabs</label></li>
+		<li><label><input type="checkbox" id="conf_tabbarorder">Automatically sort tabs in tabbar</label></li>
 	</ul>
 	<h2>Reset</h2>
 	<ul>
@@ -66,7 +65,7 @@
 	</ul>
 	<h2>Help</h2>
 	<ul>
-		<li>Please visit <a href="https://azisava.sakura.ne.jp/tablistboard/en.html" target="_blank">support site</a> for more help.</li>
+		<li>Please visit <a href="https://azisava.sakura.ne.jp/tablistboard/en.html">support site</a> for more help.</li>
 	</ul>
 </div>
 <div id="main"></div>

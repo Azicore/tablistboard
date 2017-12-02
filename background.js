@@ -13,6 +13,12 @@ var SIDEBAR_PAGE = 'sidebar.html';
 var TAB_VALUE_KEY    = 'tabInfo';
 var WINDOW_VALUE_KEY = 'windowInfo';
 
+// タブ状態情報のキー
+var TAB_STATUS_KEYS = {
+	activated: 'tabStatusActivated',
+	displayed: 'tabStatusDisplayed'
+};
+
 // ウィンドウごとのメインページのタブのID
 var mainPageTabIds = {};
 
@@ -31,61 +37,30 @@ lang = /^ja/.test(lang) ? 'ja' : 'en';
 var switchTab = function(windowId, self, target) {
 	// 依存変数：mainPageTabIds
 	// targetに切り替える
-	if (target != null) {
-		browser.tabs.update(target, { active: true });
+	var procs = [];
+	if (target != null && !isNaN(target)) {
+		procs.push(browser.tabs.update(target, { active: true }).catch(function() { }));
 	}
 	// selfを閉じる
-	if (self != null) {
-		browser.tabs.remove(self);
+	if (self != null && !isNaN(self)) {
+		procs.push(browser.tabs.remove(self));
 		// メインページを閉じた場合
 		if (self == mainPageTabIds[windowId]) {
 			mainPageTabIds[windowId] = null;
 			// 履歴と最近閉じたタブから削除する
-			browser.sessions.getRecentlyClosed({ maxResults: 1 }).then(function(sessionInfo) {
+			procs.push(browser.sessions.getRecentlyClosed({ maxResults: 1 }).then(function(sessionInfo) {
 				if (sessionInfo[0] && sessionInfo[0].tab) {
 					var tab = sessionInfo[0].tab;
-					browser.sessions.forgetClosedTab(tab.windowId, tab.sessionId);
-					browser.history.deleteUrl({ url: tab.url });
+					return Promise.all([
+						browser.sessions.forgetClosedTab(tab.windowId, tab.sessionId),
+						browser.history.deleteUrl({ url: tab.url })
+					]);
 				}
-			});
+				return Promise.resolve();
+			}));
 		}
 	}
-};
-
-// タブとウィンドウに保存した情報を取得
-var getTabListInfo = function(windowId, callback) {
-	// 依存変数：TAB_VALUE_KEY, WINDOW_VALUE_KEY
-	var tabs;
-	Promise.all([
-		browser.tabs.query({ windowId: windowId }).then(function(obj) {
-			tabs = obj;
-			var tabInfo = [];
-			for (var i = 0; tabs.length > i; i++) {
-				tabInfo[i] = browser.sessions.getTabValue(tabs[i].id, TAB_VALUE_KEY);
-			}
-			return Promise.all(tabInfo);
-		}),
-		browser.sessions.getWindowValue(windowId, WINDOW_VALUE_KEY)
-	]).then(function(obj) {
-		callback(tabs, obj[0], (obj[1] || {}).lists);
-	});
-};
-
-// タブとウィンドウに保存した情報を全て削除
-var removeTabListInfo = function(windowId, callback) {
-	// 依存変数：TAB_VALUE_KEY, WINDOW_VALUE_KEY
-	Promise.all([
-		browser.tabs.query({ windowId: windowId }).then(function(tabs) {
-			var objs = [];
-			for (var i = 0; tabs.length > i; i++) {
-				objs[i] = browser.sessions.removeTabValue(tabs[i].id, TAB_VALUE_KEY);
-			}
-			return Promise.all(objs);
-		}),
-		browser.sessions.removeWindowValue(windowId, WINDOW_VALUE_KEY)
-	]).then(function(obj) {
-		callback();
-	});
+	return Promise.all(procs);
 };
 
 // アクティブなタブを取得
@@ -97,6 +72,100 @@ var getActiveTab = function(windowId) {
 		}, reject);
 	});
 };
+
+// タブの状態情報をセットする
+var setTabStatus = function(tabId, status, value) {
+	// 依存変数：TAB_STATUS_KEYS
+	var key = TAB_STATUS_KEYS[status];
+	value = +value + ''; // '0' or '1'
+	return browser.sessions.setTabValue(tabId, key, value);
+};
+
+// タブの状態情報を取得する
+var getTabStatus = function(tabId) {
+	// 依存変数：TAB_STATUS_KEYS
+	return Promise.all([
+		browser.sessions.getTabValue(tabId, TAB_STATUS_KEYS.activated),
+		browser.sessions.getTabValue(tabId, TAB_STATUS_KEYS.displayed)
+	]).then(function(obj) {
+		return {
+			activated: obj[0] ? +obj[0] : 1,
+			displayed: obj[1] ? +obj[1] : 1
+		};
+	});
+};
+
+// タブとウィンドウに保存した情報を取得
+var getTabListInfo = function(windowId) {
+	// 依存変数：TAB_VALUE_KEY, WINDOW_VALUE_KEY, getActiveTab, getTabStatus
+	var tabs;
+	return Promise.all([
+		browser.tabs.query({ windowId: windowId }).then(function(obj) {
+			tabs = obj;
+			var tabInfo = [], tabStatus = [];
+			for (var i = 0; tabs.length > i; i++) {
+				tabInfo[i] = browser.sessions.getTabValue(tabs[i].id, TAB_VALUE_KEY);
+				tabStatus[i] = getTabStatus(tabs[i].id);
+			}
+			return Promise.all([
+				Promise.all(tabInfo),
+				Promise.all(tabStatus)
+			]);
+		}),
+		browser.sessions.getWindowValue(windowId, WINDOW_VALUE_KEY),
+		getActiveTab(windowId)
+	]).then(function(obj) {
+		var lists = null;
+		// リスト情報は連想配列に整形して渡す
+		if (obj[1] && obj[1].lists && obj[1].lists.length) {
+			lists = {};
+			for (var i = 0; obj[1].lists.length > i; i++) {
+				lists[obj[1].lists[i].listId] = obj[1].lists[i];
+			}
+		}
+		return {
+			tabs        : tabs,
+			tabInfo     : obj[0][0],
+			tabStatus   : obj[0][1],
+			lists       : lists,
+			currentTabId: obj[2]
+		};
+	});
+};
+
+// タブとウィンドウに保存した情報を全て削除
+var removeTabListInfo = function(windowId) {
+	// 依存変数：TAB_VALUE_KEY, WINDOW_VALUE_KEY, TAB_STATUS_KEYS
+	return Promise.all([
+		browser.tabs.query({ windowId: windowId }).then(function(tabs) {
+			var procs = [];
+			for (var i = 0; tabs.length > i; i++) {
+				procs.push(
+					browser.sessions.removeTabValue(tabs[i].id, TAB_VALUE_KEY),
+					browser.sessions.removeTabValue(tabs[i].id, TAB_STATUS_KEYS.activated),
+					browser.sessions.removeTabValue(tabs[i].id, TAB_STATUS_KEYS.displayed)
+				);
+			}
+			return Promise.all(procs);
+		}),
+		browser.sessions.removeWindowValue(windowId, WINDOW_VALUE_KEY)
+	]);
+};
+
+// 遅延処理
+var delay = function(ms) {
+	return new Promise(function(resolve, reject) {
+		setTimeout(resolve, ms || 200);
+	});
+};
+
+// メインページ上のハイパーリンク
+var openPageFromBoard = function(windowId, url) {
+	return switchTab(windowId, mainPageTabIds[windowId], lastTabIds[windowId]).then(function() {
+		return browser.tabs.create({ active: true, url: url });
+	});
+};
+
 
 
 // --------------------------------------------------------------------------------
@@ -115,7 +184,10 @@ var i18nTexts = {
 	CONFIG_RESET_DONE   : browser.i18n.getMessage('configResetDone'),
 	SIDEBAR_ERROR_MAIN  : browser.i18n.getMessage('sidebarErrorMain'),
 	SIDEBAR_ERROR_NOINFO: browser.i18n.getMessage('sidebarErrorNoinfo'),
-	SIDEBAR_OTHER_LISTS : browser.i18n.getMessage('sidebarOtherLists')
+	SIDEBAR_OTHER_LISTS : browser.i18n.getMessage('sidebarOtherLists'),
+	ALERT_OK            : browser.i18n.getMessage('alertOk'),
+	CONFIRM_OK          : browser.i18n.getMessage('confirmOk'),
+	CONFIRM_CANCEL      : browser.i18n.getMessage('confirmCancel')
 };
 
 // 設定の読み込みと保存
@@ -135,7 +207,9 @@ var config = (function() {
 			closeTab   : true,
 			removeList : true,
 			otherLists : true,
-			middleClick: false
+			middleClick: false,
+			tabbarOrder: false,
+			removeTabs : false
 		};
 		// 未定義の項目はデフォルト値を適用、未知の設定項目は無視
 		for (var i in defaultConfig) {
@@ -176,25 +250,27 @@ var updateListInfo = function($, windowId) {
 		});
 		colId++;
 	});
-	browser.sessions.setWindowValue(windowId, WINDOW_VALUE_KEY, { lists: lists });
+	return browser.sessions.setWindowValue(windowId, WINDOW_VALUE_KEY, { lists: lists });
 };
 
 // 全てのタブの情報を更新して保存する
 var updateTabInfo = function($, windowId) {
-	// 依存変数：TAB_VALUE_KEY
+	// 依存変数：TAB_VALUE_KEY, config
+	var obj = [];
 	$('.tablist_block').each(function() {
 		var $tablistBlock = $(this);
 		var listId = +$tablistBlock.attr('data-list-id');
 		var $tabItems = $tablistBlock.find('.tabitem').each(function(i) {
 			var $this = $(this);
 			var tabId = +$this.attr('data-tab-id');
-			browser.sessions.setTabValue(tabId, TAB_VALUE_KEY, {
+			obj.push(browser.sessions.setTabValue(tabId, TAB_VALUE_KEY, {
 				listId: listId,
 				order: i + 1
-			});
+			}));
 		});
-		$tablistBlock.find('.remove_list_btn').toggle($tabItems.length == 0);
+		$tablistBlock.find('.remove_list_btn').toggle(config.removeTabs || $tabItems.length == 0);
 	});
+	return Promise.all(obj);
 };
 
 
@@ -222,6 +298,7 @@ var start = function(toggle) {
 				: browser.tabs.update(mainPageTabIds[windowId], { url: MAIN_PAGE[lang], active: true })
 			// 再利用できない場合（通常）は新規タブでメインページを開く
 			).catch(function() {
+				start.processing = true;
 				browser.tabs.create({ url: MAIN_PAGE[lang] }).then(function(tab) {
 					mainPageTabIds[windowId] = tab.id;
 				});
@@ -232,16 +309,45 @@ var start = function(toggle) {
 
 // 新しいタブが開いたとき
 browser.tabs.onCreated.addListener(function(tab) {
-	if (!tab.openerTabId) return;
-	browser.sessions.getTabValue(tab.openerTabId, TAB_VALUE_KEY).then(function(tabInfo) {
-		if (tabInfo) {
-			browser.sessions.setTabValue(tab.id, TAB_VALUE_KEY, {
+	Promise.all([
+		setTabStatus(tab.id, 'activated', false),
+		setTabStatus(tab.id, 'displayed', false)
+	]).then(function() {
+		if (!tab.openerTabId) return;
+		return browser.sessions.getTabValue(tab.openerTabId, TAB_VALUE_KEY).then(function(tabInfo) {
+			if (!tabInfo) return;
+			return browser.sessions.setTabValue(tab.id, TAB_VALUE_KEY, {
 				listId: tabInfo.listId,
 				order : (tabInfo.order + Math.floor(tabInfo.order + 1)) / 2
 			});
-		}
+		});
+	}).then(function() {
+		browser.runtime.sendMessage({ name: 'created', param: tab });
 	});
 });
+
+// タブが切り替わったとき
+browser.tabs.onActivated.addListener(function(obj) {
+	// ※APIのバグにより、obj.tabIdはまれに不正確なため使用不可。
+	getActiveTab(obj.windowId).then(function(tabId) {
+		return setTabStatus(tabId, 'activated', true);
+	}).then(function() {
+		browser.runtime.sendMessage({ name: 'activated', param: obj });
+	});
+});
+
+// タブが別のウィンドウから移動されたとき
+browser.tabs.onAttached.addListener(function(tabId, obj) {
+	// ※APIのバグにより、tabIdはまれに不正確なため使用不可。
+	var tab;
+	browser.tabs.query({ windowId: obj.newWindowId, index: obj.newPosition }).then(function(tabs) {
+		tab = tabs[0];
+		return setTabStatus(tab.id, 'displayed', false);
+	}).then(function() {
+		browser.runtime.sendMessage({ name: 'created', param: tab });
+	});
+});
+
 
 // アドオンボタンのクリック
 browser.browserAction.onClicked.addListener(function() {
