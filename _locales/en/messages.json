@@ -29,11 +29,17 @@
 	"configTitle": {
 		"message": "Settings"
 	},
-	"configResetConfirm": {
-		"message": "Are you sure you want to delete all information about tab lists?<br>Opened tabs won't be closed."
+	"configResetConfirm1": {
+		"message": "Are you sure you want to delete all information about tab lists?<br>Please do this when some tab lists are broken or when you want to remake tab lists from scratch."
+	},
+	"configResetConfirm2": {
+		"message": "Are you sure you want to reset settings?<br>Please do this when you want to initialize settings."
+	},
+	"configResetConfirm3": {
+		"message": "Are you sure you want to reset status information of unread tabs?<br>Please do this when you find all tabs become yellow after restarting Firefox."
 	},
 	"configResetDone": {
-		"message": "Reset is successfully done."
+		"message": "Operation is successfully done."
 	},
 	"sidebarErrorMain": {
 		"message": "A tab list which contains the current tab will be displayed here."
@@ -51,6 +57,66 @@
 		"message": "OK"
 	},
 	"confirmCancel": {
+		"message": "Cancel"
+	},
+	"menuMoveToList": {
+		"message": "Move to other list"
+	},
+	"menuSeparateTab": {
+		"message": "Separate this tab"
+	},
+	"menuSeparateAbove": {
+		"message": "Separate tabs above"
+	},
+	"menuSeparateBelow": {
+		"message": "Separate tabs below"
+	},
+	"menuSeparateDomain": {
+		"message": "Separate same domain tabs"
+	},
+	"menuCopyText": {
+		"message": "Copy text"
+	},
+	"menuCopyUrl": {
+		"message": "URL"
+	},
+	"menuCopyTitle": {
+		"message": "Title"
+	},
+	"menuCopyBoth": {
+		"message": "Title and URL"
+	},
+	"menuMoveTop": {
+		"message": "Move to the top"
+	},
+	"menuMoveBottom": {
+		"message": "Move to the bottom"
+	},
+	"menuInsertLeft": {
+		"message": "Insert between the left column"
+	},
+	"menuInsertRight": {
+		"message": "Insert between the right column"
+	},
+	"menuReplaceLeft": {
+		"message": "Replace with the left column"
+	},
+	"menuReplaceRight": {
+		"message": "Replace with the right column"
+	},
+	"menuMergeList": {
+		"message": "Merge into other list"
+	},
+	"menuSortTitle": {
+		"message": "Sort by title"
+	},
+	"menuSortAccess": {
+		"message": "Sort by accessed time"
+	},
+	"menuNoList": {
+		"message": "(No list)"
+	},
+	"menuCancel": {
 		"message": "Cancel"
 	}
 }

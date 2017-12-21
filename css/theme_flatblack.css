@@ -1,0 +1,83 @@
+
+/* 全体 */
+body {
+	background: #333333;
+}
+
+/* ヘッダ部 */
+
+
+/* タブリスト */
+.tablist_block {
+	border: 1px solid #ffffff;
+	border-radius: 2px;
+	background: #333333;
+	box-shadow: 0px 0px 6px rgba(255, 255, 255, 0.8);
+}
+.tablist_block.placeholder {
+	border-radius: 0px;
+	box-shadow: none;
+}
+.tablist {
+	margin: 0px;
+}
+.tabitem, .listitem {
+	margin: 0px;
+	border: 0px;
+	border-bottom: 1px solid #666666;
+	border-radius: 0px;
+	background: #333333;
+	color: #ffffff;
+}
+.tabitem.old_tab {
+	background: #333333;
+	color: #808080;
+}
+.tabitem.new_tab {
+	background: #999900;
+}
+.tabitem.last_tab {
+	background: #339933;
+}
+.tabitem.current_tab {
+	background: #339933;
+}
+.add_tab_btn, .remove_list_btn {
+	color: #999999;
+}
+.tabitem.placeholder {
+	border: 0px;
+	background: #999999;
+	box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.8) inset;
+}
+
+/* サイドバー */
+#sidebar {
+	margin-left: 1px;
+}
+#sidebar .tablist_block {
+	box-shadow: none;
+}
+#sidebar .tablist_title {
+	padding-bottom: 8px;
+	background: #333333;
+	color: #ffffff;
+}
+#otherlist_block ul {
+	margin-top: 0px;
+}
+#sidebar_msg {
+	color: #ffffff;
+}
+#otherlist_block p {
+	color: #ffffff;
+}
+
+/* 設定画面 */
+#config {
+	color: #ffffff;
+}
+#config a {
+	color: #9999ff;
+}
+

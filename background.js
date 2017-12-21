@@ -134,22 +134,29 @@ var getTabListInfo = function(windowId) {
 };
 
 // タブとウィンドウに保存した情報を全て削除
-var removeTabListInfo = function(windowId) {
+var removeTabListInfo = function(windowId, onlyStatus) {
 	// 依存変数：TAB_VALUE_KEY, WINDOW_VALUE_KEY, TAB_STATUS_KEYS
 	return Promise.all([
 		browser.tabs.query({ windowId: windowId }).then(function(tabs) {
 			var procs = [];
 			for (var i = 0; tabs.length > i; i++) {
+				if (!onlyStatus) {
+					procs.push(browser.sessions.removeTabValue(tabs[i].id, TAB_VALUE_KEY));
+				}
 				procs.push(
-					browser.sessions.removeTabValue(tabs[i].id, TAB_VALUE_KEY),
 					browser.sessions.removeTabValue(tabs[i].id, TAB_STATUS_KEYS.activated),
 					browser.sessions.removeTabValue(tabs[i].id, TAB_STATUS_KEYS.displayed)
 				);
 			}
 			return Promise.all(procs);
 		}),
-		browser.sessions.removeWindowValue(windowId, WINDOW_VALUE_KEY)
+		onlyStatus ? Promise.resolve() : browser.sessions.removeWindowValue(windowId, WINDOW_VALUE_KEY)
 	]);
+};
+
+// サイドバーのリロード
+var reloadSidebar = function() {
+	return browser.sidebarAction.setPanel({ panel: SIDEBAR_PAGE + '#' + Date.now() })
 };
 
 // 遅延処理
@@ -173,49 +180,79 @@ var openPageFromBoard = function(windowId, url) {
 
 // 国際化テキスト
 var i18nTexts = {
-	ADD_TAB_BUTTON      : browser.i18n.getMessage('addTabButton'),
-	REMOVE_LIST_BUTTON  : browser.i18n.getMessage('removeListButton'),
-	NEW_LIST_NAME       : browser.i18n.getMessage('newListName'),
-	REMOVE_LIST_CONFIRM : browser.i18n.getMessage('removeListConfirm'),
-	CLOSE_TAB_CONFIRM   : browser.i18n.getMessage('closeTabConfirm'),
-	TITLE               : browser.i18n.getMessage('title'),
-	CONFIG_TITLE        : browser.i18n.getMessage('configTitle'),
-	CONFIG_RESET_CONFIRM: browser.i18n.getMessage('configResetConfirm'),
-	CONFIG_RESET_DONE   : browser.i18n.getMessage('configResetDone'),
-	SIDEBAR_ERROR_MAIN  : browser.i18n.getMessage('sidebarErrorMain'),
-	SIDEBAR_ERROR_NOINFO: browser.i18n.getMessage('sidebarErrorNoinfo'),
-	SIDEBAR_OTHER_LISTS : browser.i18n.getMessage('sidebarOtherLists'),
-	ALERT_OK            : browser.i18n.getMessage('alertOk'),
-	CONFIRM_OK          : browser.i18n.getMessage('confirmOk'),
-	CONFIRM_CANCEL      : browser.i18n.getMessage('confirmCancel')
+	ADD_TAB_BUTTON       : browser.i18n.getMessage('addTabButton'),
+	REMOVE_LIST_BUTTON   : browser.i18n.getMessage('removeListButton'),
+	NEW_LIST_NAME        : browser.i18n.getMessage('newListName'),
+	REMOVE_LIST_CONFIRM  : browser.i18n.getMessage('removeListConfirm'),
+	CLOSE_TAB_CONFIRM    : browser.i18n.getMessage('closeTabConfirm'),
+	TITLE                : browser.i18n.getMessage('title'),
+	CONFIG_TITLE         : browser.i18n.getMessage('configTitle'),
+	CONFIG_RESET_CONFIRM1: browser.i18n.getMessage('configResetConfirm1'),
+	CONFIG_RESET_CONFIRM2: browser.i18n.getMessage('configResetConfirm2'),
+	CONFIG_RESET_CONFIRM3: browser.i18n.getMessage('configResetConfirm3'),
+	CONFIG_RESET_DONE    : browser.i18n.getMessage('configResetDone'),
+	SIDEBAR_ERROR_MAIN   : browser.i18n.getMessage('sidebarErrorMain'),
+	SIDEBAR_ERROR_NOINFO : browser.i18n.getMessage('sidebarErrorNoinfo'),
+	SIDEBAR_OTHER_LISTS  : browser.i18n.getMessage('sidebarOtherLists'),
+	ALERT_OK             : browser.i18n.getMessage('alertOk'),
+	CONFIRM_OK           : browser.i18n.getMessage('confirmOk'),
+	CONFIRM_CANCEL       : browser.i18n.getMessage('confirmCancel'),
+	MENU_MOVE_TO_LIST    : browser.i18n.getMessage('menuMoveToList'),
+	MENU_SEPARATE_TAB    : browser.i18n.getMessage('menuSeparateTab'),
+	MENU_SEPARATE_ABOVE  : browser.i18n.getMessage('menuSeparateAbove'),
+	MENU_SEPARATE_BELOW  : browser.i18n.getMessage('menuSeparateBelow'),
+	MENU_SEPARATE_DOMAIN : browser.i18n.getMessage('menuSeparateDomain'),
+	MENU_COPY_TEXT       : browser.i18n.getMessage('menuCopyText'),
+	MENU_COPY_URL        : browser.i18n.getMessage('menuCopyUrl'),
+	MENU_COPY_TITLE      : browser.i18n.getMessage('menuCopyTitle'),
+	MENU_COPY_BOTH       : browser.i18n.getMessage('menuCopyBoth'),
+	MENU_MOVE_TOP        : browser.i18n.getMessage('menuMoveTop'),
+	MENU_MOVE_BOTTOM     : browser.i18n.getMessage('menuMoveBottom'),
+	MENU_INSERT_LEFT     : browser.i18n.getMessage('menuInsertLeft'),
+	MENU_INSERT_RIGHT    : browser.i18n.getMessage('menuInsertRight'),
+	MENU_REPLACE_LEFT    : browser.i18n.getMessage('menuReplaceLeft'),
+	MENU_REPLACE_RIGHT   : browser.i18n.getMessage('menuReplaceRight'),
+	MENU_MERGE_LIST      : browser.i18n.getMessage('menuMergeList'),
+//	MENU_SORT_TITLE      : browser.i18n.getMessage('menuSortTitle'),
+//	MENU_SORT_ACCESS     : browser.i18n.getMessage('menuSortAccess'),
+	MENU_NO_LIST         : browser.i18n.getMessage('menuNoList'),
+	MENU_CANCEL          : browser.i18n.getMessage('menuCancel')
 };
 
 // 設定の読み込みと保存
 var config = (function() {
 	var obj = {};
-	// storageから変数にコピー（初回のみ）
-	browser.storage.local.get('config').then(function(o) {
-		var config = o.config || {};
-		var defaultConfig = {
-			wordWrap   : true,
-			fontSize   : 'medium',
-			theme      : 'default',
-			oldTab     : true,
-			oldTabTerm : 168,
-//			lastTab    : true,
-//			newTab     : true,
-			closeTab   : true,
-			removeList : true,
-			otherLists : true,
-			middleClick: false,
-			tabbarOrder: false,
-			removeTabs : false
-		};
-		// 未定義の項目はデフォルト値を適用、未知の設定項目は無視
-		for (var i in defaultConfig) {
-			obj[i] = config[i] != null ? config[i] : defaultConfig[i];
-		}
-	});
+	var queue = [];
+	obj.reload = function() {
+		// storageから変数にコピー（初回とリセット時のみ）
+		return browser.storage.local.get('config').then(function(o) {
+			var config = o.config || {};
+			var defaultConfig = {
+				wordWrap   : false,
+				fontSize   : 'medium',
+				theme      : 'default',
+				oldTab     : true,
+				oldTabTerm : 168,
+	//			lastTab    : true,
+	//			newTab     : true,
+				closeTab   : true,
+				removeList : true,
+				otherLists : true,
+				middleClick: false,
+				removeTabs : false,
+				tabbarOrder: true
+			};
+			// 未定義の項目はデフォルト値を適用、未知の設定項目は無視
+			for (var i in defaultConfig) {
+				obj[i] = config[i] != null ? config[i] : defaultConfig[i];
+			}
+			// 待機している関数があれば実行
+			if (queue) {
+				for (var i = 0; queue.length > i; i++) queue[i]();
+				queue = null;
+			}
+		});
+	};
 	// 与えられた設定をstorageと変数にコピー
 	obj.update = function(config) {
 		for (var i in config) {
@@ -223,6 +260,12 @@ var config = (function() {
 		}
 		return browser.storage.local.set({config: config});
 	};
+	// configの準備ができたら実行する関数の登録
+	obj.onReady = function(func) {
+		queue ? queue.push(func) : func();
+	};
+	// 初回実行
+	obj.reload();
 	return obj;
 })();
 
@@ -260,12 +303,13 @@ var updateTabInfo = function($, windowId) {
 	$('.tablist_block').each(function() {
 		var $tablistBlock = $(this);
 		var listId = +$tablistBlock.attr('data-list-id');
+		var orderOffset = +$tablistBlock.attr('data-order-offset') || 0;
 		var $tabItems = $tablistBlock.find('.tabitem').each(function(i) {
 			var $this = $(this);
 			var tabId = +$this.attr('data-tab-id');
 			obj.push(browser.sessions.setTabValue(tabId, TAB_VALUE_KEY, {
 				listId: listId,
-				order: i + 1
+				order: i + 1 + orderOffset
 			}));
 		});
 		$tablistBlock.find('.remove_list_btn').toggle(config.removeTabs || $tabItems.length == 0);

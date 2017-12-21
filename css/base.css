@@ -175,6 +175,13 @@ h1 {
 }
 
 /* サイドバー */
+#sidebar .column_block {
+	width: auto;
+}
+#sidebar .column {
+	min-height: 0px;
+	margin: 0px;
+}
 #sidebar .tablist_block {
 	margin: 0px 0px 8px;
 	border: 0px;
@@ -216,6 +223,13 @@ h1 {
 	margin: 0px 24px;
 	line-height: 2;
 }
+#config li p {
+	margin-left: 24px;
+	line-height: 1.25;
+}
+#config .weak {
+	color: #808080;
+}
 #config input {
 	margin-right: 8px;
 }
@@ -226,6 +240,7 @@ h1 {
 	font-size: 14px;
 }
 #config button {
+	margin-right: 8px;
 	padding: 6px 12px;
 	border: 1px solid #999999;
 	background: #f0f0f0;
@@ -263,7 +278,7 @@ h1 {
 
 /* ダイアログ */
 .dialog {
-	position: absolute;
+	position: fixed;
 	left: 0px;
 	top: 0px;
 	width: 100%;
@@ -291,4 +306,47 @@ h1 {
 	margin: 4px 8px 0px;
 	text-align: center;
 }
+
+/* 右クリックメニュー */
+.menu_cont {
+	padding: 4px;
+	border: 1px solid #666666;
+	background: #fafafa;
+	box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+	position: fixed;
+}
+.menu_cont ul {
+	list-style-type: none;
+	margin-top: 4px;
+	border-top: 1px solid #999999;
+	padding-top: 4px;
+}
+.menu_cont ul.menu_noline {
+	margin-top: 0px;
+	border-top: 0px;
+	padding-top: 0px;
+}
+.menu_cont li {
+	padding: 0px 8px 0px 4px;
+	line-height: 1.5;
+	font-size: 12px;
+	white-space: nowrap;
+}
+#sidebar ~ .menu_cont li {
+	white-space: normal;
+}
+.menu_cont li.has_submenu {
+	padding-right: 24px;
+	background-image: url(data:image/gif;base64,R0lGODlhBgAMAIAAAP///5CQkCH5BAMKAAAALAAAAAAGAAwAAAIPhB9nkcj+AJuS1lYVVpwXADs=);
+	background-repeat: no-repeat;
+	background-position: right;
+}
+.menu_mouse_over {
+	background: #d0d0d0;
+	cursor: pointer;
+}
+.menu_disabled {
+	opacity: 0.5;
+}
+
 

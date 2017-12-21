@@ -29,11 +29,17 @@
 	"configTitle": {
 		"message": "タブリストボードの設定"
 	},
-	"configResetConfirm": {
-		"message": "タブリストの情報を全て削除してよろしいですか？<br>現在開いてるタブが閉じられることはありません。"
+	"configResetConfirm1": {
+		"message": "タブリストの情報を全て消去してよろしいですか？<br>タブリストに異常が生じた場合や、タブリストを一から作り直したい場合などに実行して下さい。"
+	},
+	"configResetConfirm2": {
+		"message": "設定情報をリセットしてよろしいですか？<br>設定を初期状態に戻したい場合などに実行して下さい。"
+	},
+	"configResetConfirm3": {
+		"message": "未読状態の情報をリセットしてよろしいですか？<br>Firefoxを再起動した場合などに、全てのタブが未読タブ（黄色のタブ）になってしまった場合に実行して下さい。"
 	},
 	"configResetDone": {
-		"message": "初期化が完了しました。"
+		"message": "処理が完了しました。"
 	},
 	"sidebarErrorMain": {
 		"message": "表示中のタブと同じリストのタブの一覧がここに表示されます。"
@@ -51,6 +57,66 @@
 		"message": "OK"
 	},
 	"confirmCancel": {
+		"message": "キャンセル"
+	},
+	"menuMoveToList": {
+		"message": "他のリストへ移動"
+	},
+	"menuSeparateTab": {
+		"message": "このタブを分離"
+	},
+	"menuSeparateAbove": {
+		"message": "ここから上のタブを分離"
+	},
+	"menuSeparateBelow": {
+		"message": "ここから下のタブを分離"
+	},
+	"menuSeparateDomain": {
+		"message": "同じドメインのタブを分離"
+	},
+	"menuCopyText": {
+		"message": "テキストコピー"
+	},
+	"menuCopyUrl": {
+		"message": "URL"
+	},
+	"menuCopyTitle": {
+		"message": "タイトル"
+	},
+	"menuCopyBoth": {
+		"message": "タイトルとURL"
+	},
+	"menuMoveTop": {
+		"message": "一番上へ移動"
+	},
+	"menuMoveBottom": {
+		"message": "一番下へ移動"
+	},
+	"menuInsertLeft": {
+		"message": "左の列との間に挿入"
+	},
+	"menuInsertRight": {
+		"message": "右の列との間に挿入"
+	},
+	"menuReplaceLeft": {
+		"message": "左の列と入れ替え"
+	},
+	"menuReplaceRight": {
+		"message": "右の列と入れ替え"
+	},
+	"menuMergeList": {
+		"message": "他のリストに統合"
+	},
+	"menuSortTitle": {
+		"message": "タイトル順にソート"
+	},
+	"menuSortAccess": {
+		"message": "アクセス順にソート"
+	},
+	"menuNoList": {
+		"message": "（リストなし）"
+	},
+	"menuCancel": {
 		"message": "キャンセル"
 	}
 }

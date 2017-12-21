@@ -18,8 +18,8 @@
 		<span id="conf_cancel" class="header_btn_conf">Cancel</span>
 	</div>
 </div>
-<div class="info" data-info-ver="1.3.0">
-	<p><b>Update information (2017/12/03) :</b> Version 1.3.0 has been released. Thank you for updating. Please check update information on <a href="https://azisava.sakura.ne.jp/tablistboard/en.html">support page</a>.</p>
+<div class="info" data-info-ver="1.4.0">
+	<p><b>Update information (2017/12/21) :</b> Version 1.4.0 has been released. Thank you for updating. Context menus with useful functions for tabs and tab lists are now available. Please check update information on <a href="https://azisava.sakura.ne.jp/tablistboard/en.html">support page</a>.</p>
 	<div class="info_close" title="Close"></div>
 </div>
 <div id="config">
@@ -37,8 +37,9 @@
 			<option value="black">Black</option>
 			<option value="silver">Silver</option>
 			<option value="flat">Flat</option>
+			<option value="flatblack">Flat black</option>
 		</select></li>
-		<li><label><input type="checkbox" id="conf_wordwrap">Display all of tab name</label></li>
+		<li><label><input type="checkbox" id="conf_wordwrap">Display all of tab name <p class="weak">&#9492; If you uncheck this, long tab name will be omitted and shown in one line.</p></label></li>
 		<li><label><input type="checkbox" id="conf_oldtab">Change color of old tabs which haven't been accessed more than <select id="conf_oldtabterm">
 			<option value="1">1 hour</option>
 			<option value="12">12 hours</option>
@@ -54,14 +55,18 @@
 	</ul>
 	<h2>Other</h2>
 	<ul>
-		<li><label><input type="checkbox" id="conf_otherlists">Always show other tab lists in sidebar</label></li>
+		<li><label><input type="checkbox" id="conf_otherlists">Always show other tab lists in sidebar <p class="weak">&#9492; If you uncheck this, you can show other tab lists by clicking list name part in sidebar.</p></label></li>
 		<li><label><input type="checkbox" id="conf_middleclick">Close a tab by middle button click</label></li>
-		<li><label><input type="checkbox" id="conf_removetabs">Allow deleting a tab list even if it still has tabs</label></li>
+		<li><label><input type="checkbox" id="conf_removetabs">Allow deleting a tab list even if it still has tabs <p class="weak">&#9492; If you uncheck this, you can delete a tab list only when the list is empty.</p></label></li>
 		<li><label><input type="checkbox" id="conf_tabbarorder">Automatically sort tabs in tabbar</label></li>
 	</ul>
 	<h2>Reset</h2>
 	<ul>
-		<li><button id="conf_reset">Reset...</button></li>
+		<li><button
+			class="conf_reset" data-reset="1">Reset tab lists...</button><button
+			class="conf_reset" data-reset="2">Reset settings...</button><button
+			class="conf_reset" data-reset="3">Reset unread tabs...</button>
+		</li>
 	</ul>
 	<h2>Help</h2>
 	<ul>
