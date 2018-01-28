@@ -166,14 +166,6 @@ var delay = function(ms) {
 	});
 };
 
-// メインページ上のハイパーリンク
-var openPageFromBoard = function(windowId, url) {
-	return switchTab(windowId, mainPageTabIds[windowId], lastTabIds[windowId]).then(function() {
-		return browser.tabs.create({ active: true, url: url });
-	});
-};
-
-
 
 // --------------------------------------------------------------------------------
 // # 固定共通オブジェクト・関数
@@ -230,7 +222,7 @@ var config = (function() {
 			var defaultConfig = {
 				wordWrap   : false,
 				fontSize   : 'medium',
-				theme      : 'default',
+				theme      : 'flat',
 				oldTab     : true,
 				oldTabTerm : 168,
 	//			lastTab    : true,

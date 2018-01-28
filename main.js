@@ -426,7 +426,8 @@ window.jQuery(function($) {
 			tabMenu.close();
 			listMenu.close();
 			if (typeof obj != 'string') {
-				$sidebar.show().append(obj[1]).toggleClass('hide_other_lists', !bg.config.otherLists).setFontSize();
+				$sidebar.show().append(obj[1]).toggleClass('hide_other_lists', !bg.config.otherLists).setFontSize()
+					.find('.column').sortable('option', 'disabled', true);
 				$sidebar.find('.tablist_block').each(function() {
 					var $this = $(this);
 					if ($this.find('.tablist').children().length == 0) $this.hide();
@@ -637,12 +638,20 @@ window.jQuery(function($) {
 	
 	// タブ追加ボタン
 	$document.on('click', '.add_tab_text', function() {
-		var $tablist = $(this).parent().parent().find('.tablist');
+		var $this = $(this);
+		var $tablist = $this.parent().parent().find('.tablist');
 		browser.tabs.create({ active: false }).then(function(tab) {
 			if (!isSidebar) {
 				tab.isNewTab = true;
 				$tablist.append(createTabElement(tab));
-				updateTabInfo();
+				updateTabInfo().then(function() {
+					if ($this.data('board_link')) {
+						// タブ一覧画面上のリンクからページを開く場合の処理
+						browser.tabs.update(tab.id, { url: $this.data('board_link') });
+						$this.removeData('board_link');
+						$tablist.children().last().click();
+					}
+				});
 			} // サイドバーの場合はonCreatedがハンドリング
 		});
 	});
@@ -705,7 +714,9 @@ window.jQuery(function($) {
 	
 	// ハイパーリンクの動作
 	$document.on('click', 'a', function(e) {
-		bg.openPageFromBoard(currentWindowId, $(this).attr('href'));
+		if ($('#config').is(':visible')) $('#conf_cancel').click();
+		if ($('.add_tab_text').length == 0) $('#add_list').click();
+		$('.add_tab_text').eq(0).data('board_link', $(this).attr('href')).click();
 		e.preventDefault();
 	});
 	
