@@ -8,6 +8,18 @@
 	"browserActionTitle": {
 		"message": "Open Tab List Board"
 	},
+	"shortcutStart": {
+		"message": "Show/hide Tab List Board"
+	},
+	"shortcutSidebar": {
+		"message": "Show/hide sidebar"
+	},
+	"shortcutConfirm": {
+		"message": "Please push shortcut keys you want to change while this message is displayed.<br><br>- The current setting is \"%s\". The default setting is \"%s\".<br>- There are restrictions on combination of keys.<br>- There is a case that you can't set shortcut keys due to conflict with standard functions or other extensions."
+	},
+	"shortcutDone": {
+		"message": "The shortcut key has been changed to \"%s\"."
+	},
 	"newListName": {
 		"message": "New List"
 	},
@@ -24,7 +36,7 @@
 		"message": "Is it OK to close \"%s\"?"
 	},
 	"title": {
-		"message": "Tab List Board"
+		"message": "Tab List Board / %d tabs"
 	},
 	"configTitle": {
 		"message": "Settings"
@@ -49,6 +61,9 @@
 	},
 	"sidebarOtherLists": {
 		"message": "Other lists"
+	},
+	"privateWindowError": {
+		"message": "I'm sorry but Tab List Board is not available in a private window. Please use a normal window."
 	},
 	"alertOk": {
 		"message": "OK"

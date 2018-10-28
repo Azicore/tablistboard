@@ -172,6 +172,8 @@ var delay = function(ms) {
 
 // 国際化テキスト
 var i18nTexts = {
+	SHORTCUT_CONFIRM     : browser.i18n.getMessage('shortcutConfirm'),
+	SHORTCUT_DONE        : browser.i18n.getMessage('shortcutDone'),
 	ADD_TAB_BUTTON       : browser.i18n.getMessage('addTabButton'),
 	REMOVE_LIST_BUTTON   : browser.i18n.getMessage('removeListButton'),
 	NEW_LIST_NAME        : browser.i18n.getMessage('newListName'),
@@ -232,7 +234,8 @@ var config = (function() {
 				otherLists : true,
 				middleClick: false,
 				removeTabs : false,
-				tabbarOrder: true
+				tabbarOrder: true,
+				hideTabs   : false
 			};
 			// 未定義の項目はデフォルト値を適用、未知の設定項目は無視
 			for (var i in defaultConfig) {
@@ -308,6 +311,57 @@ var updateTabInfo = function($, windowId) {
 	});
 	return Promise.all(obj);
 };
+
+// ショートカットの初期化と変更
+var shortcuts = (function() {
+	// 現在の設定を取得
+	var getAll = function() {
+		return browser.commands.getAll().then(function(cmds) {
+			for (var i = 0; cmds.length > i; i++) {
+				var cmd = cmds[i];
+				var des = cmd.description.match(/^(.+) \((.+?)\)$/) || [];
+				cmds[i] = {
+					name: cmd.name,
+					description: browser.i18n.getMessage(des[1].replace(/(?:_|MSG)/g, '')),
+					default: des[2],
+					current: cmd.shortcut
+				};
+			}
+			return cmds;
+		});
+	};
+	// ショートカットの更新
+	var update = function(name, shortcut) {
+		var updateShortcut = browser.commands.update({
+			name: name,
+			shortcut: shortcut
+		});
+		// アドオンボタンのタイトルを変更
+		var changeTitle = name == 'start' ? browser.browserAction.getTitle({}).then(function(title) {
+			title = title.replace(/ \([^\)]+\)$/, '') + ' (' + shortcut + ')';
+			return browser.browserAction.setTitle({ title: title });
+		}) : Promise.resolve();
+		return Promise.all([updateShortcut, changeTitle]);
+	};
+	// ショートカットの初期化
+	var resetAll = function(init) {
+		return getAll().then(function(cmds) {
+			var procs = [];
+			for (var i = 0; cmds.length > i; i++) {
+				var cmd = cmds[i];
+				procs.push(update(cmd.name, init && cmd.current ? cmd.current : cmd.default));
+			}
+			return Promise.all(procs);
+		});
+	};
+	resetAll(true);
+	return {
+		getAll: getAll,
+		update: update,
+		resetAll: resetAll
+	};
+})();
+
 
 
 // --------------------------------------------------------------------------------

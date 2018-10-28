@@ -4,7 +4,7 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <title>タブリストボード</title>
 <link rel="stylesheet" href="css/base.css">
-<script src="lib/jquery-2.2.4.min.js"></script>
+<script src="lib/jquery-3.3.1.min.js"></script>
 <script src="lib/jquery-ui-1.12.1.custom.min.js"></script>
 <script src="main.js"></script>
 </head>
@@ -18,8 +18,8 @@
 		<span id="conf_cancel" class="header_btn_conf">キャンセル</span>
 	</div>
 </div>
-<div class="info" data-info-ver="1.4.0">
-	<p><b>更新情報（2017/12/21）：</b> バージョン1.4.0をリリースしました。アップデートしていただきありがとうございます。タブとタブリストに便利な右クリックメニュー機能を追加しました。<a href="https://azisava.sakura.ne.jp/tablistboard/">サポートサイト</a>にてぜひ更新内容をご確認下さい。</p>
+<div class="info" data-info-ver="1.5.0">
+	<p><b>更新情報（2018/10/27）：</b> バージョン1.5.0をリリースしました。アップデートしていただきありがとうございます。ショートカットが変更できるようになりました。サイドバー使用時、タブバー上の他のリストのタブを隠せるようになりました。<a href="https://azisava.sakura.ne.jp/tablistboard/">サポートサイト</a>にてぜひ更新内容をご確認下さい。</p>
 	<div class="info_close" title="閉じる"></div>
 </div>
 <div id="config">
@@ -59,6 +59,12 @@
 		<li><label><input type="checkbox" id="conf_middleclick">タブを中クリックすることでタブを閉じる。</label></li>
 		<li><label><input type="checkbox" id="conf_removetabs">タブが残っているリストも削除できるようにする。<p class="weak">└ OFFにすると、リスト内のタブを全て削除したときしかリストを削除できなくなります。</p></label></li>
 		<li><label><input type="checkbox" id="conf_tabbarorder">タブバーのタブの並び順を自動的に調整する。</label></li>
+		<li><label><input type="checkbox" id="conf_hidetabs">サイドバー使用中は他のリストのタブをタブバーに表示しない。</label></li>
+	</ul>
+	<h2>ショートカット設定</h2>
+	<ul>
+		<li>以下の動作を行なうキーボードショートカットを変更できます。</li>
+		<li id="conf_shortcuts"></li>
 	</ul>
 	<h2>リセット</h2>
 	<ul>

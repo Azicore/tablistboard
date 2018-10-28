@@ -7,7 +7,10 @@ window.jQuery(function($) {
 	// # 基本変数と初期化
 	
 	// バックグラウンドJSのルートオブジェクトを取得
-	var bg = browser.extension.getBackgroundPage();
+	var bg = browser.extension.getBackgroundPage() || {};
+	
+	// プライベートウィンドウの判定
+	var isPrivate = bg.MAIN_PAGE == null;
 	
 	// メインページとサイドバーとの動作切り替え
 	var isSidebar = location.href.indexOf(bg.SIDEBAR_PAGE) >= 0;
@@ -38,6 +41,7 @@ window.jQuery(function($) {
 		$('.tabitem').each(function() {
 			procs.push(browser.tabs.get(+$(this).attr('data-tab-id')));
 		});
+		$('h1, title').switchTitle(); // メインページのタブ数表示を更新
 		return Promise.all(procs).then(function(tabs) {
 			var tabIds = [], index;
 			for (var i = 0; tabs.length > i; i++) {
@@ -163,6 +167,12 @@ window.jQuery(function($) {
 		return $(this).removeClass(function(i, cls) {
 			return cls.split(/ +/).filter(function(s) { return /^fontsize_/.test(s); }).join(' ');
 		}).addClass('fontsize_' + bg.config.fontSize);
+	};
+	
+	// タイトルを切り替える
+	$.fn.switchTitle = function(isConfig) {
+		var $this = $(this);
+		$this.html(isConfig ? i18nTexts.CONFIG_TITLE : i18nTexts.TITLE.replace(/%d/, $('.tabitem').length));
 	};
 	
 	// ダイアログ表示
@@ -384,6 +394,12 @@ window.jQuery(function($) {
 			for (var i = 0; $elements.length > i; i++) {
 				$main.append($elements[i]);
 			}
+			// 隠していたタブを全て表示
+			var shownTabs = [];
+			for (var i = 0; o.tabs.length > i; i++) {
+				shownTabs.push(o.tabs[i].id);
+			}
+			browser.tabs.show(shownTabs);
 			return Promise.all([updateTabInfo(), updateListInfo(), Promise.all(procs)]);
 		});
 	};
@@ -408,6 +424,15 @@ window.jQuery(function($) {
 					targetListId = o.targetListId = tabInfo[i] && tabInfo[i].listId;
 					break;
 				}
+			}
+			// 対象リスト以外のタブを隠す
+			if (bg.config.hideTabs) {
+				var hiddenTabs = [], shownTabs = [];
+				for (var i = 0; tabs.length > i; i++) {
+					(tabInfo[i].listId == targetListId ? shownTabs : hiddenTabs).push(tabs[i].id);
+				}
+				browser.tabs.hide(hiddenTabs);
+				browser.tabs.show(shownTabs);
 			}
 			if (!lists[targetListId]) {
 				return i18nTexts.SIDEBAR_ERROR_NOINFO;
@@ -445,6 +470,15 @@ window.jQuery(function($) {
 	// ウィンドウIDを取得して起動
 	browser.windows.getCurrent().then(function(window) {
 		currentWindowId = window.id;
+		
+		// プライベートウィンドウでは使用不可
+		if (isPrivate) {
+			var sorryMessage = browser.i18n.getMessage('privateWindowError');
+			$('#sidebar_msg').html(sorryMessage);
+			$('#header_right').hide();
+			$('.info').show().find('p').html(sorryMessage).next().remove();
+			return;
+		}
 		
 		// メインページの場合
 		if (!isSidebar) {
@@ -494,6 +528,9 @@ window.jQuery(function($) {
 	
 	});
 	
+	// プライベートウィンドウの場合は停止
+	if (isPrivate) return;
+	
 	// カラーテーマの設定
 	bg.config.onReady(function() {
 		bg.config.theme != 'default' && $('head').append($('<link>').attr({
@@ -501,7 +538,7 @@ window.jQuery(function($) {
 			href: 'css/theme_' + bg.config.theme + '.css'
 		}));
 	});
-	
+
 	// メニューの準備
 	var tabMenu, listMenu;
 	(function() {
@@ -592,7 +629,10 @@ window.jQuery(function($) {
 			} else if (mode == 2) {
 				// 設定をリセット
 				return Dialog.confirm(i18nTexts.CONFIG_RESET_CONFIRM2).then(function() {
-					return browser.storage.local.remove(['config', 'update']);
+					return Promise.all([
+						browser.storage.local.remove(['config', 'update']),
+						bg.shortcuts.resetAll()
+					]);
 				}).then(function() {
 					return bg.config.reload();
 				}).then(function() {
@@ -609,6 +649,59 @@ window.jQuery(function($) {
 		}).then(function() {
 			bg.switchTab(currentWindowId, bg.mainPageTabIds[currentWindowId]);
 		}).catch($.noop);
+	});
+	
+	// ショートカット設定ボタン
+	!isSidebar && bg.shortcuts.getAll().then(function(cmds) {
+		// 設定ボタンを追加
+		var $shortcuts = $('#conf_shortcuts');
+		for (var i = 0; cmds.length > i; i++) {
+			var cmd = cmds[i];
+			$shortcuts.append($('<button>').html(cmd.description)
+				.attr({
+					'data-name': cmd.name,
+					'data-default': cmd.default,
+					'data-current': cmd.current || cmd.default
+				})
+			);
+		}
+		$shortcuts.children().on('click', function() {
+			var $this = $(this);
+			$('body').on('keydown.shortcut', function(e) {
+				e = e.originalEvent;
+				var getKeyName = function(keyCode) {
+					if (keyCode >= 48 && 57 >= keyCode || keyCode >= 65 && 90 >= keyCode) {
+						return String.fromCharCode(keyCode);
+					} else if (keyCode >= 112 && 123 >= keyCode) {
+						return 'F' + (keyCode - 111);
+					} else {
+						return {
+							32: 'Space', 33: 'PageUp', 34: 'PageDown', 35: 'End', 36: 'Home',
+							37: 'Left', 38: 'Up', 39: 'Right', 40: 'Down',
+							45: 'Insert', 46: 'Delete', 188: 'Comma', 190: 'Period'
+						}[keyCode];
+					}
+				};
+				var str = getKeyName(e.keyCode);
+				if (str != null) {
+					if (e.shiftKey) str = 'Shift+' + str;
+					if (e.altKey) str = 'Alt+' + str;
+					if (e.ctrlKey) str = 'Ctrl+' + str;
+					if (str.length > 1 && !/^(?:Ctrl\+Alt\+)?Shift\+[^\+]+$/.test(str)) {
+						e.preventDefault();
+						bg.shortcuts.update($this.attr('data-name'), str).then(function() {
+							$('body').off('keydown.shortcut');
+							Dialog.close();
+							$this.attr('data-current', str);
+							Dialog.alert(i18nTexts.SHORTCUT_DONE.replace('%s', str));
+						});
+					}
+				}
+			});
+			Dialog.alert(i18nTexts.SHORTCUT_CONFIRM.replace('%s', $this.attr('data-current')).replace('%s', $this.attr('data-default'))).then(function() {
+				$('body').off('keydown.shortcut');
+			});
+		});
 	});
 	
 	// リスト追加ボタン
@@ -720,6 +813,21 @@ window.jQuery(function($) {
 		e.preventDefault();
 	});
 	
+	// Sortableのrevertオプションのバグ対応（スクロール時はOFFにする）
+	(function() {
+		var $window = $(window);
+		var scrolled = false;
+		$window.on('scroll', function() {
+			var scrollTop = $window.scrollTop();
+			if (scrollTop > 0 && !scrolled) {
+				scrolled = true;
+				$('.tablist, .column').sortable('option', 'revert', false);
+			} else if (scrollTop == 0 && scrolled) {
+				scrolled = false;
+				$('.tablist, .column').sortable('option', 'revert', 100);
+			}
+		});
+	})();
 	
 	// メニュー：他のリストへ移動
 	$document.on('click', '.menu_move_to_list', function() {
@@ -743,6 +851,7 @@ window.jQuery(function($) {
 		var $newTablistBlock = createListElement({ listId: Date.now(), title: i18nTexts.NEW_LIST_NAME, tabs: [] });
 		$tablistBlock.after($newTablistBlock);
 		var $newTablist = $newTablistBlock.find('.tablist');
+		var $newTablistTitle = $newTablistBlock.find('.tablist_title_text');
 		if (action == 0) {
 			$newTablist.append(tabMenu.$this);
 		} else if (action == 1) {
@@ -757,11 +866,12 @@ window.jQuery(function($) {
 					var domain = $this.attr('data-url').split(/\/+/);
 					if (domain[1] == targetDomain[1]) $newTablist.append($this);
 				});
+				$newTablistTitle.text(targetDomain[1]);
 			} else {
 				$newTablist.append(tabMenu.$this);
 			}
 		}
-		$newTablistBlock.find('.tablist_title_text').click();
+		$newTablistTitle.click();
 		Promise.all([updateListInfo(), updateTabInfo()]).then(function() {
 			if (isSidebar) generateSidebar();
 		});
@@ -843,7 +953,8 @@ window.jQuery(function($) {
 			otherLists : $('#conf_otherlists'),
 			middleClick: $('#conf_middleclick'),
 			tabbarOrder: $('#conf_tabbarorder'),
-			removeTabs : $('#conf_removetabs')
+			removeTabs : $('#conf_removetabs'),
+			hideTabs   : $('#conf_hidetabs')
 		};
 		// 設定を読み込んで設定画面に反映
 		var loadConf = function() {
@@ -857,7 +968,7 @@ window.jQuery(function($) {
 		var toggleConf = function(toggle) {
 			$('#main, .header_btn_main').toggle(!toggle);
 			$('#config, .header_btn_conf').toggle(!!toggle);
-			$('h1').html(toggle ? i18nTexts.CONFIG_TITLE : i18nTexts.TITLE);
+			$('h1, title').switchTitle(toggle);
 		};
 		// 設定ボタン
 		$('#conf_open').on('click', function() {

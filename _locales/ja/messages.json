@@ -8,6 +8,18 @@
 	"browserActionTitle": {
 		"message": "タブリストボードを表示"
 	},
+	"shortcutStart": {
+		"message": "タブリストボードの表示/非表示"
+	},
+	"shortcutSidebar": {
+		"message": "サイドバーの表示/非表示"
+	},
+	"shortcutConfirm": {
+		"message": "ショートカットを変更するには、今このメッセージが出ている間に、ご希望のショートカットを押して下さい。<br><br>※現在は「%s」に設定されています。デフォルトは「%s」です。<br>※キーの組合せには制約があります。<br>※標準の機能や他のアドオンと競合する場合は設定できないことがあります。"
+	},
+	"shortcutDone": {
+		"message": "「%s」に設定しました。"
+	},
 	"newListName": {
 		"message": "新規リスト"
 	},
@@ -24,7 +36,7 @@
 		"message": "「%s」を閉じてよろしいですか？"
 	},
 	"title": {
-		"message": "タブリストボード"
+		"message": "タブリストボード / %d個のタブ"
 	},
 	"configTitle": {
 		"message": "タブリストボードの設定"
@@ -49,6 +61,9 @@
 	},
 	"sidebarOtherLists": {
 		"message": "他のリスト"
+	},
+	"privateWindowError": {
+		"message": "申し訳ありません。タブリストボードは、プライベートウィンドウでは使用できません。通常のウィンドウを開いてご使用下さい。"
 	},
 	"alertOk": {
 		"message": "OK"
