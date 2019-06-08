@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "__MSG_extensionName__",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"author": "Azicore",
 	"default_locale": "en",
 	"description": "__MSG_extensionDescription__",
@@ -9,7 +9,7 @@
 	"applications": {
 		"gecko": {
 			"id": "tablistboard@azisava.sakura.ne.jp",
-			"strict_min_version": "57.0"
+			"strict_min_version": "60.0"
 		}
 	},
 	"icons": {

@@ -322,7 +322,7 @@ var shortcuts = (function() {
 				var des = cmd.description.match(/^(.+) \((.+?)\)$/) || [];
 				cmds[i] = {
 					name: cmd.name,
-					description: browser.i18n.getMessage(des[1].replace(/(?:_|MSG)/g, '')),
+					description: /^__MSG_/.test(des[1]) ? browser.i18n.getMessage(des[1].replace(/(?:_|MSG)/g, '')) : des[1],
 					default: des[2],
 					current: cmd.shortcut
 				};
